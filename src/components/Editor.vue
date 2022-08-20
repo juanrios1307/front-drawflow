@@ -1,6 +1,6 @@
 <template>
   <div class="row">
-    <div class="col-4 border border-primary" id="drag">
+    <div class="col-4" id="drag">
       <h4>Modulo de Operaciones</h4>
       <ul class="list-group list-group-flush">
         <li
@@ -18,7 +18,7 @@
       </ul>
     </div>
 
-    <div class="col-8 border border-secondary" id="editor">
+    <div class="col-8" id="editor">
       <h4>Editor</h4>
       <div
         id="drawflow"
@@ -36,6 +36,12 @@ import Drawflow from "drawflow";
 import "drawflow/dist/drawflow.min.css";
 
 import Numero from "./nodes/NumberNode.vue";
+import Suma from "./nodes/SumNode.vue";
+import Resta from "./nodes/RestaNode.vue";
+import Multiplicacion from "./nodes/MultiplicacionNode.vue";
+import Division from "./nodes/DividirNode.vue";
+import If from "./nodes/IfNode.vue";
+import For from "./nodes/ForNode.vue";
 
 export default {
   name: "editor-draw-flow",
@@ -132,6 +138,12 @@ export default {
     this.df.start();
 
     this.df.registerNode("Numero", Numero, {}, {});
+    this.df.registerNode("Suma", Suma, {}, {});
+    this.df.registerNode("Resta", Resta, {}, {});
+    this.df.registerNode("Multiplicacion", Multiplicacion, {}, {});
+    this.df.registerNode("Division", Division, {}, {});
+    this.df.registerNode("If", If, {}, {});
+    this.df.registerNode("For", For, {}, {});
 
     this.df.reroute = true;
 
@@ -230,14 +242,6 @@ export default {
     addNodeToDrawFlow(name, pos_x, pos_y) {
       switch (name) {
         case "Numero":
-          var numero = `<div class="node">
-    <div class="title-box">Enter a number</div>
-    <div class="box">
-      <input type="number" df-number />
-    </div>
-  </div>`;
-          console.log(name);
-          console.log(Numero);
           this.df.addNode(
             name,
             0,
@@ -252,22 +256,81 @@ export default {
           break;
 
         case "Suma":
-          var numero = `<div class="node">
-    <div class="title-box">Add two numbers</div>
-    <div class="box">
-      <input disabled df-number></input>
-    </div>
-  </div>`;
-
           this.df.addNode(
-            "Suma",
+            name,
             2,
             1,
             pos_x,
             pos_y,
             "sum node",
             { number: 0 },
-            numero
+            name,
+            "vue"
+          );
+          break;
+        case "Resta":
+          this.df.addNode(
+            name,
+            2,
+            1,
+            pos_x,
+            pos_y,
+            "rest node",
+            { number: 0 },
+            name,
+            "vue"
+          );
+          break;
+        case "Multiplicacion":
+          this.df.addNode(
+            name,
+            2,
+            1,
+            pos_x,
+            pos_y,
+            "mult node",
+            { number: 0 },
+            name,
+            "vue"
+          );
+          break;
+        case "Division":
+          this.df.addNode(
+            name,
+            2,
+            1,
+            pos_x,
+            pos_y,
+            "div node",
+            { number: 0 },
+            name,
+            "vue"
+          );
+          break;
+        case "If":
+          this.df.addNode(
+            name,
+            2,
+            1,
+            pos_x,
+            pos_y,
+            "if node",
+            { number: 0 },
+            name,
+            "vue"
+          );
+          break;
+        case "For":
+          this.df.addNode(
+            name,
+            2,
+            1,
+            pos_x,
+            pos_y,
+            "for node",
+            { number: 0 },
+            name,
+            "vue"
           );
           break;
       }

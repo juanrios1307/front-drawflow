@@ -1,13 +1,13 @@
 <template>
   <div class="container1">
     <div class="row">
-      <div class="col-7 border border-primary" id="drag">
+      <div class="col-7" id="drag">
         <Editor />
       </div>
-      <div class="col-3 border border-success" id="pythonCode">
+      <div class="col-3" id="pythonCode">
         <h4>Código Python</h4>
       </div>
-      <div class="col-2 border border-danger" id="api">
+      <div class="col-2" id="api">
         <h4>Operaciones Backend</h4>
       </div>
     </div>
@@ -29,7 +29,6 @@ export default {
 .container1 {
   height: 100vh;
   padding: 10px;
-  border: 2px black dotted;
 }
 .row {
   width: 100%;
