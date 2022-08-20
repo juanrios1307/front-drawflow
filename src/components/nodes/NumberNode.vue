@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="node1">
     <div class="title-box">Enter a number</div>
     <div class="box">
       <input type="number" df-number />
@@ -10,16 +10,20 @@
 <script>
 export default {
   data() {
-    return {
-      ID: "",
-      nodeId: "",
-      bizStep: "",
-      allNodeInfo: [],
-      identifierSyntax: "URN",
-    };
+    return {};
   },
-  mounted() {
-    console.log("MOUNTED");
-  },
+  mounted() {},
 };
 </script>
+
+<style>
+.node1 {
+  text-align: center;
+}
+
+input {
+  width: 100%;
+  height: 100%;
+  text-align: center;
+}
+</style>

@@ -2,17 +2,17 @@
   <div class="row">
     <div class="col-4 border border-primary" id="drag">
       <h4>Modulo de Operaciones</h4>
-      <ul>
+      <ul class="list-group list-group-flush">
         <li
+          class="list-group-item a"
           v-for="n in listNodes"
           :key="n.ID"
           draggable="true"
           :data-node="n.item"
-          class="drag-drawflow"
           @dragstart="drag($event, n.name)"
         >
-          <div class="node" :style="`background: ${n.color}`">
-            <span style="color: #17202a; font-weight: bold">{{ n.name }}</span>
+          <div class="a">
+            <span style="color: #17202a">{{ n.name }}</span>
           </div>
         </li>
       </ul>
@@ -31,6 +31,7 @@
 </template>
 
 <script>
+import { h, getCurrentInstance, render } from "vue";
 import Drawflow from "drawflow";
 import "drawflow/dist/drawflow.min.css";
 
@@ -57,7 +58,7 @@ export default {
           ID: 1,
           type: "Numero",
           name: "Número",
-          color: "#36FF33",
+          color: "#73D08D",
           item: "Numero",
           input: 0,
           output: 1,
@@ -66,7 +67,7 @@ export default {
           ID: 2,
           type: "Suma",
           name: "Suma",
-          color: "#27C125",
+          color: "#73D08D",
           item: "Suma",
           input: 1,
           output: 1,
@@ -75,7 +76,7 @@ export default {
           ID: 3,
           type: "Resta",
           name: "Resta",
-          color: "#1B881A",
+          color: "#73D08D",
           item: "Resta",
           input: 1,
           output: 1,
@@ -84,7 +85,7 @@ export default {
           ID: 4,
           type: "Multiplicacion",
           name: "Multiplicación",
-          color: "#10520F",
+          color: "#73D08D",
           item: "Multiplicacion",
           input: 1,
           output: 1,
@@ -93,7 +94,7 @@ export default {
           ID: 5,
           type: "Division",
           name: "División",
-          color: "#449C43",
+          color: "#73D08D",
           item: "Division",
           input: 1,
           output: 1,
@@ -102,7 +103,7 @@ export default {
           ID: 6,
           type: "IF",
           name: "IF",
-          color: "#439C82",
+          color: "#73D08D",
           item: "If",
           input: 1,
           output: 1,
@@ -111,7 +112,7 @@ export default {
           ID: 7,
           type: "For",
           name: "For",
-          color: "#63CFB0",
+          color: "#73D08D",
           item: "For",
           input: 1,
           output: 1,
@@ -121,9 +122,10 @@ export default {
   },
   async mounted() {
     const vm = this;
+    const Vue = { version: 3, h, render };
     var id = document.getElementById("drawflow");
 
-    this.df = new Drawflow(id);
+    this.df = new Drawflow(id, Vue);
 
     this.df.editor_mode = "edit"; // Default
 
@@ -275,20 +277,10 @@ export default {
 </script>
 
 <style scoped>
-#drag ul {
-  padding-inline-start: 0px;
-  padding: 10px 10px;
-}
-
-#drag li {
-  list-style-type: none;
-  padding: 10px 10px;
-}
-
-#drag .node {
+#drag .node1 {
   border-radius: 10px;
   border: 1px solid #ccc;
-  height: 30px;
+  height: 60px;
   text-align: center;
   cursor: move;
 }
@@ -305,6 +297,7 @@ h4 {
   text-align: center;
   font-size: 16px;
   padding: 10px;
+  font-weight: bold;
 }
 
 .node {
@@ -316,11 +309,12 @@ h4 {
   background-color: beige;
 }
 
-input {
-  width: 10px;
-  height: 100%;
-  border: none;
-  background: transparent;
+.drawflow .drawflow-node {
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  height: 30px;
   text-align: center;
+  cursor: move;
+  background-color: beige !important;
 }
 </style>
