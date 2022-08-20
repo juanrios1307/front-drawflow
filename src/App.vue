@@ -10,4 +10,18 @@ import DrawflowView from "./views/DrawflowView.vue";
   </div>
 </template>
 
+<script>
+export default {
+  name: "app",
+  components: {},
+  data() {
+    return {};
+  },
+  methods: {},
+  created() {},
+  mounted() {},
+  beforeDestroy() {},
+};
+</script>
+
 <style scoped></style>

@@ -1,12 +1,7 @@
 <template>
   <div class="container1">
     <div class="row">
-      <div class="col-2 border border-primary" id="drag">
-        <h4>Modulo de Operaciones</h4>
-        <Menu />
-      </div>
-      <div class="col-5 border border-secondary" id="editor">
-        <h4>Editor</h4>
+      <div class="col-7 border border-primary" id="drag">
         <Editor />
       </div>
       <div class="col-3 border border-success" id="pythonCode">
