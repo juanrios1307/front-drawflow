@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import { getCurrentInstance } from "vue";
+import { getCurrentInstance, onMounted, onUpdated } from "vue";
 import { useDrawflowStore } from "../../stores/drawflow";
 
 export default {
@@ -18,121 +18,46 @@ export default {
       id: "",
       df: "",
       node: "",
+      inputs: "",
+      outputs: "",
     };
   },
   watch: {
-    node(newN, oldN) {
+    "node.inputs": function (newN, oldN) {
+      console.log("Inputs");
       console.log(newN);
       console.log(oldN);
+      console.log(this.node);
+    },
+    "node.outputs": function (newN, oldN) {
+      console.log("Outputs");
+      console.log(newN);
+      console.log(oldN);
+      console.log(this.node);
     },
   },
   mounted() {
     let df = null;
     df = getCurrentInstance().appContext.config.globalProperties.$df.value;
+
+    console.log(df.nodeId);
     this.id = df.nodeId;
     this.df = df;
-    //this.node = df.getNodeFromId(df.nodeId);
+  },
+  updated() {
+    this.node = this.drawflowStore.getNodeById(this.id);
+    this.inputs = this.node.inputs;
+    this.outputs = this.node.outputs;
+    console.log(this.node);
   },
   setup() {
     const drawflowStore = useDrawflowStore();
-
     return {
       drawflowStore,
     };
   },
   methods: {
-    onChange(event) {
-      /* const node = this.df.getNodeFromId(this.id);
-
-      if (node.outputs.output_1.connections.length > 0) {
-        for (var i = 0; i < node.outputs.output_1.connections.length; i++) {
-          const connection = node.outputs.output_1.connections[i];
-          const inputNode = this.df.getNodeFromId(connection.node);
-
-          const input_class = connection.output;
-
-          if (inputNode.name == "Suma") {
-            if (input_class == "input_1") {
-              const n1 = node.data.number;
-              const n2 = inputNode.data.n2;
-              this.df.updateNodeDataFromId(inputNode.id, {
-                n1: parseInt(n1),
-                n2: parseInt(n2),
-                result: parseInt(n1) + parseInt(n2),
-              });
-            } else {
-              const n1 = inputNode.data.n1;
-              const n2 = node.data.number;
-              this.df.updateNodeDataFromId(inputNode.id, {
-                n1: parseInt(n1),
-                n2: parseInt(n2),
-                result: parseInt(n1) + parseInt(n2),
-              });
-            }
-          } else if (inputNode.name == "Resta") {
-            if (input_class == "input_1") {
-              const n1 = node.data.number;
-              const n2 = inputNode.data.n2;
-              this.df.updateNodeDataFromId(inputNode.id, {
-                n1: parseInt(n1),
-                n2: parseInt(n2),
-                result: parseInt(n1) - parseInt(n2),
-              });
-            } else {
-              const n1 = inputNode.data.n1;
-              const n2 = node.data.number;
-              this.df.updateNodeDataFromId(inputNode.id, {
-                n1: parseInt(n1),
-                n2: parseInt(n2),
-                result: parseInt(n1) - parseInt(n2),
-              });
-            }
-          } else if (inputNode.name == "Multiplicacion") {
-            if (input_class == "input_1") {
-              const n1 = node.data.number;
-              const n2 = inputNode.data.n2;
-              this.df.updateNodeDataFromId(inputNode.id, {
-                n1: parseInt(n1),
-                n2: parseInt(n2),
-                result: parseInt(n1) * parseInt(n2),
-              });
-            } else {
-              const n1 = inputNode.data.n1;
-              const n2 = node.data.number;
-              this.df.updateNodeDataFromId(inputNode.id, {
-                n1: parseInt(n1),
-                n2: parseInt(n2),
-                result: parseInt(n1) * parseInt(n2),
-              });
-            }
-          } else if (inputNode.name == "Division") {
-            if (input_class == "input_1") {
-              const n1 = node.data.number;
-              const n2 = inputNode.data.n2;
-              this.df.updateNodeDataFromId(inputNode.id, {
-                n1: parseInt(n1),
-                n2: parseInt(n2),
-                result: parseInt(n1) / parseInt(n2),
-              });
-            } else {
-              const n1 = inputNode.data.n1;
-              const n2 = node.data.number;
-              this.df.updateNodeDataFromId(inputNode.id, {
-                n1: parseInt(n1),
-                n2: parseInt(n2),
-                result: parseInt(n1) / parseInt(n2),
-              });
-            }
-          } else if (inputNode.name == "Numero") {
-            const n = node.data.number;
-            this.df.updateNodeDataFromId(inputNode.id, {
-              number: parseInt(n),
-            });
-          }
-        }
-      }
-      return 1;*/
-    },
+    onChange(event) {},
   },
 };
 </script>

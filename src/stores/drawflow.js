@@ -12,6 +12,9 @@ export const useDrawflowStore = defineStore({
     getNodes(state) {
       return state.nodes;
     },
+    getNodeById: (state) => {
+      return (id) => state.nodes.find((node) => node.id == id);
+    },
   },
   actions: {
     increment() {

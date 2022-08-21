@@ -221,7 +221,7 @@ export default {
             pos_x,
             pos_y,
             "mult node",
-            { n1: 0, n2: 0, result: 0 },
+            { n1: 1, n2: 1, result: 1 },
             name,
             "vue"
           );
@@ -234,7 +234,7 @@ export default {
             pos_x,
             pos_y,
             "div node",
-            { n1: 0, n2: 0, result: 0 },
+            { n1: 1, n2: 1, result: 1 },
             name,
             "vue"
           );
@@ -314,6 +314,8 @@ export default {
             id: id,
             name: node.name,
             data: node.data,
+            inputs: [],
+            outputs: [],
           });
         });
       });
@@ -355,6 +357,20 @@ export default {
 
         const input = df.value.getNodeFromId(connection.input_id);
         const output = df.value.getNodeFromId(connection.output_id);
+
+        const inputIndex = drawflowStore.nodes.findIndex(
+          (n) => n.id == input.id
+        );
+        drawflowStore.$patch((state) => {
+          state.nodes[inputIndex].inputs = input.inputs;
+        });
+
+        const outputsIndex = drawflowStore.nodes.findIndex(
+          (n) => n.id == output.id
+        );
+        drawflowStore.$patch((state) => {
+          state.nodes[outputsIndex].outputs = output.outputs;
+        });
 
         //Codigo para realizar operaciones de los nodos
         const input_class = connection.input_class;
