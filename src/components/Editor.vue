@@ -31,9 +31,11 @@
 </template>
 
 <script>
-import { h, getCurrentInstance, render } from "vue";
+import { h, getCurrentInstance, render, onMounted, shallowRef } from "vue";
 import Drawflow from "drawflow";
 import "drawflow/dist/drawflow.min.css";
+
+import { useDrawflowStore } from "../stores/drawflow";
 
 import Numero from "./nodes/NumberNode.vue";
 import Suma from "./nodes/SumNode.vue";
@@ -42,6 +44,7 @@ import Multiplicacion from "./nodes/MultiplicacionNode.vue";
 import Division from "./nodes/DividirNode.vue";
 import If from "./nodes/IfNode.vue";
 import For from "./nodes/ForNode.vue";
+import Asignar from "./nodes/AsignarNode.vue";
 
 export default {
   name: "editor-draw-flow",
@@ -64,7 +67,6 @@ export default {
           ID: 1,
           type: "Numero",
           name: "Número",
-          color: "#73D08D",
           item: "Numero",
           input: 0,
           output: 1,
@@ -73,7 +75,6 @@ export default {
           ID: 2,
           type: "Suma",
           name: "Suma",
-          color: "#73D08D",
           item: "Suma",
           input: 1,
           output: 1,
@@ -82,7 +83,6 @@ export default {
           ID: 3,
           type: "Resta",
           name: "Resta",
-          color: "#73D08D",
           item: "Resta",
           input: 1,
           output: 1,
@@ -91,7 +91,6 @@ export default {
           ID: 4,
           type: "Multiplicacion",
           name: "Multiplicación",
-          color: "#73D08D",
           item: "Multiplicacion",
           input: 1,
           output: 1,
@@ -100,7 +99,6 @@ export default {
           ID: 5,
           type: "Division",
           name: "División",
-          color: "#73D08D",
           item: "Division",
           input: 1,
           output: 1,
@@ -109,7 +107,6 @@ export default {
           ID: 6,
           type: "IF",
           name: "IF",
-          color: "#73D08D",
           item: "If",
           input: 1,
           output: 1,
@@ -118,131 +115,65 @@ export default {
           ID: 7,
           type: "For",
           name: "For",
-          color: "#73D08D",
           item: "For",
           input: 1,
+          output: 1,
+        },
+        {
+          ID: 8,
+          type: "Asignar",
+          name: "Asignar",
+          item: "Asignar",
+          input: 0,
           output: 1,
         },
       ],
     };
   },
-  async mounted() {
-    const vm = this;
+  setup() {
+    const df = shallowRef({});
+    const internalInstance = getCurrentInstance();
+    internalInstance.appContext.app._context.config.globalProperties.$df = df;
     const Vue = { version: 3, h, render };
-    var id = document.getElementById("drawflow");
 
-    this.df = new Drawflow(id, Vue);
+    const drawflowStore = useDrawflowStore();
 
-    this.df.editor_mode = "edit"; // Default
-
-    this.df.start();
-
-    this.df.registerNode("Numero", Numero, {}, {});
-    this.df.registerNode("Suma", Suma, {}, {});
-    this.df.registerNode("Resta", Resta, {}, {});
-    this.df.registerNode("Multiplicacion", Multiplicacion, {}, {});
-    this.df.registerNode("Division", Division, {}, {});
-    this.df.registerNode("If", If, {}, {});
-    this.df.registerNode("For", For, {}, {});
-
-    this.df.reroute = true;
-
-    //Events
-    // Events!
-    this.df.on("nodeCreated", function (id) {
-      console.log("Node created " + id);
-    });
-
-    this.df.on("nodeRemoved", function (id) {
-      console.log("Node removed " + id);
-    });
-
-    this.df.on("nodeSelected", function (id) {
-      console.log("Node selected " + id);
-      const info = vm.df.getNodeFromId(id);
-      console.log(info);
-    });
-
-    this.df.on("moduleCreated", function (name) {
-      console.log("Module Created " + name);
-    });
-
-    this.df.on("moduleChanged", function (name) {
-      console.log("Module Changed " + name);
-    });
-
-    this.df.on("connectionCreated", function (connection) {
-      console.log("Connection created");
-      console.log(connection);
-
-      //Codigo para sumar los valores de los nodos
-      const n = vm.df.getNodeFromId(connection.output_id).data.number;
-      const sum = vm.df.getNodeFromId(connection.input_id).data.number;
-      console.log(sum);
-
-      vm.df.updateNodeDataFromId(connection.input_id, {
-        number: parseInt(sum, 10) + parseInt(n, 10),
-      });
-
-      const node = vm.df.getNodeFromId(connection.input_id);
-      console.log(node);
-    });
-
-    this.df.on("connectionRemoved", function (connection) {
-      console.log("Connection removed");
-      console.log(connection);
-    });
-
-    this.df.on("mouseMove", function (position) {
-      //console.log("Position mouse x:" + position.x + " y:" + position.y);
-    });
-
-    this.df.on("nodeMoved", function (id) {
-      console.log("Node moved " + id);
-    });
-
-    this.df.on("zoom", function (zoom) {
-      //console.log("Zoom level " + zoom);
-    });
-
-    this.df.on("translate", function (position) {
-      //console.log("Translate x:" + position.x + " y:" + position.y);
-    });
-
-    this.df.on("addReroute", function (id) {
-      console.log("Reroute added " + id);
-    });
-
-    this.df.on("removeReroute", function (id) {
-      console.log("Reroute removed " + id);
-    });
-
-    var dataExport = this.df.export();
-  },
-  methods: {
-    drag(event, eventType) {
+    const drag = (event, eventType) => {
       event.dataTransfer.setData(
         "node",
         event.target.getAttribute("data-node")
       );
-      this.dragEventType = eventType;
-    },
+    };
 
-    drop(event) {
+    const drop = (event) => {
       event.preventDefault();
       const data = event.dataTransfer.getData("node");
-      console.log(data);
-      this.addNodeToDrawFlow(data, event.clientX, event.clientY);
-    },
+      addNodeToDrawFlow(data, event.clientX, event.clientY);
+    };
 
-    allowDrop(event) {
+    const allowDrop = (event) => {
       event.preventDefault();
-    },
+    };
 
-    addNodeToDrawFlow(name, pos_x, pos_y) {
+    const addNodeToDrawFlow = (name, pos_x, pos_y) => {
+      pos_x =
+        pos_x *
+          (df.value.precanvas.clientWidth /
+            (df.value.precanvas.clientWidth * df.value.zoom)) -
+        df.value.precanvas.getBoundingClientRect().x *
+          (df.value.precanvas.clientWidth /
+            (df.value.precanvas.clientWidth * df.value.zoom));
+      pos_y =
+        pos_y *
+          (df.value.precanvas.clientHeight /
+            (df.value.precanvas.clientHeight * df.value.zoom)) -
+        df.value.precanvas.getBoundingClientRect().y *
+          (df.value.precanvas.clientHeight /
+            (df.value.precanvas.clientHeight * df.value.zoom));
+
       switch (name) {
         case "Numero":
-          this.df.addNode(
+          df.value.addNode(
             name,
             0,
             1,
@@ -253,62 +184,63 @@ export default {
             name,
             "vue"
           );
+
           break;
 
         case "Suma":
-          this.df.addNode(
+          df.value.addNode(
             name,
             2,
             1,
             pos_x,
             pos_y,
             "sum node",
-            { number: 0 },
+            { n1: 0, n2: 0, result: 0 },
             name,
             "vue"
           );
           break;
         case "Resta":
-          this.df.addNode(
+          df.value.addNode(
             name,
             2,
             1,
             pos_x,
             pos_y,
             "rest node",
-            { number: 0 },
+            { n1: 0, n2: 0, result: 0 },
             name,
             "vue"
           );
           break;
         case "Multiplicacion":
-          this.df.addNode(
+          df.value.addNode(
             name,
             2,
             1,
             pos_x,
             pos_y,
             "mult node",
-            { number: 0 },
+            { n1: 0, n2: 0, result: 0 },
             name,
             "vue"
           );
           break;
         case "Division":
-          this.df.addNode(
+          df.value.addNode(
             name,
             2,
             1,
             pos_x,
             pos_y,
             "div node",
-            { number: 0 },
+            { n1: 0, n2: 0, result: 0 },
             name,
             "vue"
           );
           break;
         case "If":
-          this.df.addNode(
+          df.value.addNode(
             name,
             2,
             1,
@@ -321,7 +253,7 @@ export default {
           );
           break;
         case "For":
-          this.df.addNode(
+          df.value.addNode(
             name,
             2,
             1,
@@ -333,7 +265,266 @@ export default {
             "vue"
           );
           break;
+        case "Asignar":
+          df.value.addNode(
+            name,
+            1,
+            1,
+            pos_x,
+            pos_y,
+            "asignar node",
+            { number: 0 },
+            name,
+            "vue"
+          );
       }
+    };
+
+    onMounted(() => {
+      var id = document.getElementById("drawflow");
+
+      df.value = new Drawflow(
+        id,
+        Vue,
+        internalInstance.appContext.app._context
+      );
+
+      df.value.editor_mode = "edit"; // Default
+
+      df.value.start();
+
+      df.value.registerNode("Numero", Numero, {}, {});
+      df.value.registerNode("Suma", Suma, {}, {});
+      df.value.registerNode("Resta", Resta, {}, {});
+      df.value.registerNode("Multiplicacion", Multiplicacion, {}, {});
+      df.value.registerNode("Division", Division, {}, {});
+      df.value.registerNode("If", If, {}, {});
+      df.value.registerNode("For", For, {}, {});
+      df.value.registerNode("Asignar", Asignar, {}, {});
+
+      df.reroute = true;
+
+      //Events
+      // Events!
+      df.value.on("nodeCreated", function (id) {
+        console.log("Node created " + id);
+        const node = df.value.getNodeFromId(id);
+        drawflowStore.$patch((state) => {
+          state.nodes.push({
+            id: id,
+            name: node.name,
+            data: node.data,
+          });
+        });
+      });
+
+      df.value.on("nodeRemoved", function (id) {
+        console.log("Node removed " + id);
+      });
+
+      df.value.on("nodeDataChanged", function (id) {
+        console.log("Node data changed " + id);
+        const data = df.value.getNodeFromId(id).data;
+
+        const nodeIndex = drawflowStore.nodes.findIndex((n) => n.id == id);
+
+        console.log(nodeIndex);
+
+        drawflowStore.$patch((state) => {
+          state.nodes[nodeIndex].data = data;
+        });
+      });
+
+      df.value.on("nodeSelected", function (id) {
+        console.log("Node selected " + id);
+        console.log(df.value.getNodeFromId(id));
+        console.log(drawflowStore.nodes);
+      });
+
+      df.value.on("moduleCreated", function (name) {
+        console.log("Module Created " + name);
+      });
+
+      df.value.on("moduleChanged", function (name) {
+        console.log("Module Changed " + name);
+      });
+
+      df.value.on("connectionCreated", function (connection) {
+        console.log("Connection created");
+        console.log(connection);
+
+        const input = df.value.getNodeFromId(connection.input_id);
+        const output = df.value.getNodeFromId(connection.output_id);
+
+        //Codigo para realizar operaciones de los nodos
+        const input_class = connection.input_class;
+        if (
+          (input.name == "Suma" ||
+            input.name == "Resta" ||
+            input.name == "Multiplicacion" ||
+            input.name == "Division") &&
+          (output.name == "Suma" ||
+            output.name == "Resta" ||
+            output.name == "Multiplicacion" ||
+            output.name == "Division")
+        ) {
+          df.value.removeSingleConnection(
+            connection.output_id,
+            connection.input_id,
+            connection.output_class,
+            connection.input_class
+          );
+        } else if (
+          (input_class == "input_1" &&
+            input.inputs.input_1.connections.length > 1) ||
+          (input_class == "input_2" &&
+            input.inputs.input_2.connections.length > 1)
+        ) {
+          df.value.removeSingleConnection(
+            connection.output_id,
+            connection.input_id,
+            connection.output_class,
+            connection.input_class
+          );
+        } else {
+          var data = {};
+          if (input.name == "Suma") {
+            if (input_class == "input_1") {
+              const n1 = output.data.number;
+              const n2 = input.data.n2;
+
+              data = {
+                n1: parseInt(n1),
+                n2: parseInt(n2),
+                result: parseInt(n1) + parseInt(n2),
+              };
+            } else {
+              const n1 = input.data.n1;
+              const n2 = output.data.number;
+              data = {
+                n1: parseInt(n1),
+                n2: parseInt(n2),
+                result: parseInt(n1) + parseInt(n2),
+              };
+            }
+          } else if (input.name == "Resta") {
+            if (input_class == "input_1") {
+              const n1 = output.data.number;
+              const n2 = input.data.n2;
+              data = {
+                n1: parseInt(n1),
+                n2: parseInt(n2),
+                result: parseInt(n1) - parseInt(n2),
+              };
+            } else {
+              const n1 = input.data.n1;
+              const n2 = output.data.number;
+              data = {
+                n1: parseInt(n1),
+                n2: parseInt(n2),
+                result: parseInt(n1) - parseInt(n2),
+              };
+            }
+          } else if (input.name == "Multiplicacion") {
+            if (input_class == "input_1") {
+              const n1 = output.data.number;
+              const n2 = input.data.n2;
+              data = {
+                n1: parseInt(n1),
+                n2: parseInt(n2),
+                result: parseInt(n1) * parseInt(n2),
+              };
+            } else {
+              const n1 = input.data.n1;
+              const n2 = output.data.number;
+              data = {
+                n1: parseInt(n1),
+                n2: parseInt(n2),
+                result: parseInt(n1) * parseInt(n2),
+              };
+            }
+          } else if (input.name == "Division") {
+            if (input_class == "input_1") {
+              const n1 = output.data.number;
+              const n2 = input.data.n2;
+              data = {
+                n1: parseInt(n1),
+                n2: parseInt(n2),
+                result: parseInt(n1) / parseInt(n2),
+              };
+            } else {
+              const n1 = input.data.n1;
+              const n2 = output.data.number;
+              data = {
+                n1: parseInt(n1),
+                n2: parseInt(n2),
+                result: parseInt(n1) / parseInt(n2),
+              };
+            }
+          } else if (input.name == "Asignar") {
+            data = {
+              number: parseInt(
+                output.name == "Numero"
+                  ? output.data.number
+                  : output.data.result
+              ),
+            };
+          }
+          df.value.updateNodeDataFromId(input.id, data);
+
+          const nodeIndex = drawflowStore.nodes.findIndex(
+            (n) => n.id == input.id
+          );
+          drawflowStore.$patch((state) => {
+            state.nodes[nodeIndex].data = data;
+          });
+        }
+      });
+
+      df.value.on("connectionRemoved", function (connection) {
+        console.log("Connection removed");
+        console.log(connection);
+      });
+
+      df.value.on("mouseMove", function (position) {
+        //console.log("Position mouse x:" + position.x + " y:" + position.y);
+      });
+
+      df.value.on("nodeMoved", function (id) {
+        console.log("Node moved " + id);
+      });
+
+      df.value.on("zoom", function (zoom) {
+        //console.log("Zoom level " + zoom);
+      });
+
+      df.value.on("translate", function (position) {
+        //console.log("Translate x:" + position.x + " y:" + position.y);
+      });
+
+      df.value.on("addReroute", function (id) {
+        console.log("Reroute added " + id);
+      });
+
+      df.value.on("removeReroute", function (id) {
+        console.log("Reroute removed " + id);
+      });
+
+      var dataExport = df.value.export();
+    });
+
+    return {
+      drawflowStore,
+      drag,
+      drop,
+      allowDrop,
+      internalInstance,
+    };
+  },
+  methods: {
+    suma(n1, n2) {
+      const s = this.drawflowStore.suma(n1, n2);
+      console.log(s);
     },
   },
 };

@@ -2,7 +2,7 @@
   <div class="node1">
     <div class="title-box">Multiply Two Numbers</div>
     <div class="box">
-      <input disabled df-number />
+      <input disabled df-result />
     </div>
   </div>
 </template>

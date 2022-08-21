@@ -1,9 +1,9 @@
 <template>
   <div class="node1">
-    <div class="title-box">Enter a number</div>
-    <div>Number ID : {{ id }}</div>
+    <div class="title-box">Assign Variable</div>
+    <div>Variable ID : {{ id }}</div>
     <div class="box">
-      <input type="number" df-number @change="onChange" />
+      <input type="number" df-number @change="onChange" disabled />
     </div>
   </div>
 </template>
@@ -17,13 +17,21 @@ export default {
     return {
       id: "",
       df: "",
+      node: "",
     };
+  },
+  watch: {
+    node(newN, oldN) {
+      console.log(newN);
+      console.log(oldN);
+    },
   },
   mounted() {
     let df = null;
     df = getCurrentInstance().appContext.config.globalProperties.$df.value;
     this.id = df.nodeId;
     this.df = df;
+    //this.node = df.getNodeFromId(df.nodeId);
   },
   setup() {
     const drawflowStore = useDrawflowStore();
@@ -34,7 +42,7 @@ export default {
   },
   methods: {
     onChange(event) {
-      const node = this.df.getNodeFromId(this.id);
+      /* const node = this.df.getNodeFromId(this.id);
 
       if (node.outputs.output_1.connections.length > 0) {
         for (var i = 0; i < node.outputs.output_1.connections.length; i++) {
@@ -42,102 +50,88 @@ export default {
           const inputNode = this.df.getNodeFromId(connection.node);
 
           const input_class = connection.output;
-          const input = inputNode;
-          const output = node;
-          var data = {};
-          if (input.name == "Suma") {
-            if (input_class == "input_1") {
-              const n1 = output.data.number;
-              const n2 = input.data.n2;
 
-              data = {
+          if (inputNode.name == "Suma") {
+            if (input_class == "input_1") {
+              const n1 = node.data.number;
+              const n2 = inputNode.data.n2;
+              this.df.updateNodeDataFromId(inputNode.id, {
                 n1: parseInt(n1),
                 n2: parseInt(n2),
                 result: parseInt(n1) + parseInt(n2),
-              };
+              });
             } else {
-              const n1 = input.data.n1;
-              const n2 = output.data.number;
-              data = {
+              const n1 = inputNode.data.n1;
+              const n2 = node.data.number;
+              this.df.updateNodeDataFromId(inputNode.id, {
                 n1: parseInt(n1),
                 n2: parseInt(n2),
                 result: parseInt(n1) + parseInt(n2),
-              };
+              });
             }
-          } else if (input.name == "Resta") {
+          } else if (inputNode.name == "Resta") {
             if (input_class == "input_1") {
-              const n1 = output.data.number;
-              const n2 = input.data.n2;
-              data = {
+              const n1 = node.data.number;
+              const n2 = inputNode.data.n2;
+              this.df.updateNodeDataFromId(inputNode.id, {
                 n1: parseInt(n1),
                 n2: parseInt(n2),
                 result: parseInt(n1) - parseInt(n2),
-              };
+              });
             } else {
-              const n1 = input.data.n1;
-              const n2 = output.data.number;
-              data = {
+              const n1 = inputNode.data.n1;
+              const n2 = node.data.number;
+              this.df.updateNodeDataFromId(inputNode.id, {
                 n1: parseInt(n1),
                 n2: parseInt(n2),
                 result: parseInt(n1) - parseInt(n2),
-              };
+              });
             }
-          } else if (input.name == "Multiplicacion") {
+          } else if (inputNode.name == "Multiplicacion") {
             if (input_class == "input_1") {
-              const n1 = output.data.number;
-              const n2 = input.data.n2;
-              data = {
+              const n1 = node.data.number;
+              const n2 = inputNode.data.n2;
+              this.df.updateNodeDataFromId(inputNode.id, {
                 n1: parseInt(n1),
                 n2: parseInt(n2),
                 result: parseInt(n1) * parseInt(n2),
-              };
+              });
             } else {
-              const n1 = input.data.n1;
-              const n2 = output.data.number;
-              data = {
+              const n1 = inputNode.data.n1;
+              const n2 = node.data.number;
+              this.df.updateNodeDataFromId(inputNode.id, {
                 n1: parseInt(n1),
                 n2: parseInt(n2),
                 result: parseInt(n1) * parseInt(n2),
-              };
+              });
             }
-          } else if (input.name == "Division") {
+          } else if (inputNode.name == "Division") {
             if (input_class == "input_1") {
-              const n1 = output.data.number;
-              const n2 = input.data.n2;
-              data = {
+              const n1 = node.data.number;
+              const n2 = inputNode.data.n2;
+              this.df.updateNodeDataFromId(inputNode.id, {
                 n1: parseInt(n1),
                 n2: parseInt(n2),
                 result: parseInt(n1) / parseInt(n2),
-              };
+              });
             } else {
-              const n1 = input.data.n1;
-              const n2 = output.data.number;
-              data = {
+              const n1 = inputNode.data.n1;
+              const n2 = node.data.number;
+              this.df.updateNodeDataFromId(inputNode.id, {
                 n1: parseInt(n1),
                 n2: parseInt(n2),
                 result: parseInt(n1) / parseInt(n2),
-              };
+              });
             }
-          } else if (input.name == "Asignar") {
-            data = {
-              number: parseInt(
-                output.name == "Numero"
-                  ? output.data.number
-                  : output.data.result
-              ),
-            };
+          } else if (inputNode.name == "Numero") {
+            const n = node.data.number;
+            this.df.updateNodeDataFromId(inputNode.id, {
+              number: parseInt(n),
+            });
           }
-          this.df.updateNodeDataFromId(input.id, data);
-
-          const nodeIndex = this.drawflowStore.nodes.findIndex(
-            (n) => n.id == input.id
-          );
-          this.drawflowStore.$patch((state) => {
-            state.nodes[nodeIndex].data = data;
-          });
         }
       }
-      return 1;
+      return 1;*/
     },
   },
 };

@@ -1,6 +1,6 @@
 <template>
   <div class="node1">
-    <div class="title-box">For Two Numbers</div>
+    <div class="title-box">For Loop</div>
     <div class="box">
       <input disabled df-number />
     </div>
