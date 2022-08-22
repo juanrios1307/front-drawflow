@@ -2,6 +2,8 @@
   <div class="node1">
     <div class="title-box">If Condition</div>
     <div class="box">
+      <input type="number" df-n1 placeholder="N1" disabled />
+      <input type="number" df-n2 placeholder="N2" disabled />
       <select df-condition>
         <option value="mayor">N1 &#62; N2</option>
         <option value="menor">N1 &#60; N2</option>

@@ -32,7 +32,7 @@ export default {
       outputs.forEach((output) => {
         const outputNode = this.df.getNodeFromId(output.node);
         console.log(outputNode);
-
+        var data = {};
         if (
           outputNode.name == "Suma" ||
           outputNode.name == "Resta" ||
@@ -60,34 +60,57 @@ export default {
               ? n1 / n2
               : 0;
 
-          const data = {
+          data = {
             n1: n1,
             n2: n2,
             result: result,
           };
+        } else if (outputNode.name == "If") {
+          var n1 = 0;
+          var n2 = 0;
+          if (output.output == "input_1") {
+            n1 = assignNode.data.number;
+            n2 = outputNode.data.n2;
+          } else {
+            n1 = outputNode.data.n1;
+            n2 = assignNode.data.number;
+          }
+          data = {
+            n1: parseInt(n1),
+            n2: parseInt(n2),
+            condition: outputNode.data.condition,
+          };
+        } else if (outputNode.name == "For") {
+          var n1 = 0;
+          var n2 = 0;
 
-          this.df.updateNodeDataFromId(outputNode.id, data);
+          if (output.output == "input_1") {
+            n1 = assignNode.data.number;
+            n2 = outputNode.data.n2;
+          } else {
+            n1 = outputNode.data.n1;
+            n2 = assignNode.data.number;
+          }
 
-          const nodeIndex = this.drawflowStore.nodes.findIndex(
-            (n) => n.id == id
-          );
-          this.drawflowStore.$patch((state) => {
-            state.nodes[nodeIndex].data = data;
-          });
+          data = {
+            n1: parseInt(n1),
+            n2: parseInt(n2),
+            repeat: outputNode.data.repeat,
+          };
         } else if (outputNode.name == "Asignar") {
-          const data = {
+          data = {
             number: assignNode.data.number,
           };
-
-          this.df.updateNodeDataFromId(outputNode.id, data);
-
-          const nodeIndex = this.drawflowStore.nodes.findIndex(
-            (n) => n.id == outputNode.id
-          );
-          this.drawflowStore.$patch((state) => {
-            state.nodes[nodeIndex].data = data;
-          });
         }
+
+        this.df.updateNodeDataFromId(outputNode.id, data);
+
+        const nodeIndex = this.drawflowStore.nodes.findIndex(
+          (n) => n.id == outputNode.id
+        );
+        this.drawflowStore.$patch((state) => {
+          state.nodes[nodeIndex].data = data;
+        });
       });
     },
   },
