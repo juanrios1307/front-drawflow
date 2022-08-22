@@ -118,6 +118,30 @@ export default {
                 result: parseInt(n1) / parseInt(n2),
               };
             }
+          } else if (input.name == "If") {
+            if (input_class == "input_1") {
+              const n1 =
+                output.name == "Numero" || output.name == "Asignar"
+                  ? output.data.number
+                  : output.data.result;
+              const n2 = input.data.n2;
+              data = {
+                n1: parseInt(n1),
+                n2: parseInt(n2),
+                condition: input.data.condition,
+              };
+            } else {
+              const n1 = input.data.n1;
+              const n2 =
+                output.name == "Numero" || output.name == "Asignar"
+                  ? output.data.number
+                  : output.data.result;
+              data = {
+                n1: parseInt(n1),
+                n2: parseInt(n2),
+                condition: input.data.condition,
+              };
+            }
           } else if (input.name == "Asignar") {
             data = {
               number: parseInt(

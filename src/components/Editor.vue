@@ -247,7 +247,7 @@ export default {
             pos_x,
             pos_y,
             "if node",
-            { number: 0 },
+            { n1: 0, n2: 0, condition: "mayor" },
             name,
             "vue"
           );
@@ -260,7 +260,7 @@ export default {
             pos_x,
             pos_y,
             "for node",
-            { number: 0 },
+            { desde: 0, hasta: 1, paso: 1 },
             name,
             "vue"
           );
@@ -322,6 +322,14 @@ export default {
 
       df.value.on("nodeRemoved", function (id) {
         console.log("Node removed " + id);
+
+        const nodeIndex = drawflowStore.nodes.findIndex((n) => n.id == id);
+
+        console.log(nodeIndex);
+
+        drawflowStore.$patch((state) => {
+          state.nodes.splice(nodeIndex, 1);
+        });
       });
 
       df.value.on("nodeDataChanged", function (id) {
@@ -339,7 +347,7 @@ export default {
 
       df.value.on("nodeSelected", function (id) {
         console.log("Node selected " + id);
-        console.log(df.value.getNodeFromId(id));
+        //console.log(df.value.getNodeFromId(id));
         console.log(drawflowStore.nodes);
       });
 
@@ -394,7 +402,9 @@ export default {
           (input_class == "input_1" &&
             input.inputs.input_1.connections.length > 1) ||
           (input_class == "input_2" &&
-            input.inputs.input_2.connections.length > 1)
+            input.inputs.input_2.connections.length > 1) ||
+          (output.name == "If" && input.name == "Asignar") ||
+          (output.name == "For" && input.name == "Asignar")
         ) {
           df.value.removeSingleConnection(
             connection.output_id,
@@ -404,7 +414,10 @@ export default {
           );
         } else {
           var data = {};
-          if (input.name == "Suma") {
+          if (
+            input.name == "Suma" &&
+            (output.name == "Numero" || output.name == "Asignar")
+          ) {
             if (input_class == "input_1") {
               const n1 = output.data.number;
               const n2 = input.data.n2;
@@ -423,7 +436,10 @@ export default {
                 result: parseInt(n1) + parseInt(n2),
               };
             }
-          } else if (input.name == "Resta") {
+          } else if (
+            input.name == "Resta" &&
+            (output.name == "Numero" || output.name == "Asignar")
+          ) {
             if (input_class == "input_1") {
               const n1 = output.data.number;
               const n2 = input.data.n2;
@@ -441,7 +457,10 @@ export default {
                 result: parseInt(n1) - parseInt(n2),
               };
             }
-          } else if (input.name == "Multiplicacion") {
+          } else if (
+            input.name == "Multiplicacion" &&
+            (output.name == "Numero" || output.name == "Asignar")
+          ) {
             if (input_class == "input_1") {
               const n1 = output.data.number;
               const n2 = input.data.n2;
@@ -459,7 +478,10 @@ export default {
                 result: parseInt(n1) * parseInt(n2),
               };
             }
-          } else if (input.name == "Division") {
+          } else if (
+            input.name == "Division" &&
+            (output.name == "Numero" || output.name == "Asignar")
+          ) {
             if (input_class == "input_1") {
               const n1 = output.data.number;
               const n2 = input.data.n2;
@@ -476,11 +498,124 @@ export default {
                 n2: parseInt(n2),
                 result: parseInt(n1) / parseInt(n2),
               };
+            }
+          } else if (input.name == "If") {
+            if (input_class == "input_1") {
+              const n1 =
+                output.name == "Numero" || output.name == "Asignar"
+                  ? output.data.number
+                  : output.data.result;
+              const n2 = input.data.n2;
+              data = {
+                n1: parseInt(n1),
+                n2: parseInt(n2),
+                condition: input.data.condition,
+              };
+            } else {
+              const n1 = input.data.n1;
+              const n2 =
+                output.name == "Numero" || output.name == "Asignar"
+                  ? output.data.number
+                  : output.data.result;
+              data = {
+                n1: parseInt(n1),
+                n2: parseInt(n2),
+                condition: input.data.condition,
+              };
+            }
+          } else if (
+            output.name == "If" &&
+            (input.name == "Suma" ||
+              input.name == "Resta" ||
+              input.name == "Multiplicacion" ||
+              input.name == "Division")
+          ) {
+            const n1 = output.data.n1;
+            const n2 = output.data.n2;
+
+            if (output.data.condition == "mayor") {
+              console.log("mayor");
+              if (n1 > n2) {
+                const result =
+                  input.name == "Suma"
+                    ? n1 + n2
+                    : input.name == "Resta"
+                    ? n1 - n2
+                    : input.name == "Multiplicacion"
+                    ? n1 * n2
+                    : input.name == "Division"
+                    ? n1 / n2
+                    : 0;
+
+                data = {
+                  n1: n1,
+                  n2: n2,
+                  result: result,
+                };
+              } else {
+                data = {
+                  n1: input.data.n1,
+                  n2: input.data.n2,
+                  result: input.data.result,
+                };
+              }
+            } else if (output.data.condition == "menor") {
+              console.log("menor");
+              if (n1 < n2) {
+                const result =
+                  input.name == "Suma"
+                    ? n1 + n2
+                    : input.name == "Resta"
+                    ? n1 - n2
+                    : input.name == "Multiplicacion"
+                    ? n1 * n2
+                    : input.name == "Division"
+                    ? n1 / n2
+                    : 0;
+
+                data = {
+                  n1: n1,
+                  n2: n2,
+                  result: result,
+                };
+              } else {
+                data = {
+                  n1: input.data.n1,
+                  n2: input.data.n2,
+                  result: input.data.result,
+                };
+              }
+            } else if (output.data.condition == "igual") {
+              console.log("igual");
+              if (n1 == n2) {
+                const result =
+                  input.name == "Suma"
+                    ? n1 + n2
+                    : input.name == "Resta"
+                    ? n1 - n2
+                    : input.name == "Multiplicacion"
+                    ? n1 * n2
+                    : input.name == "Division"
+                    ? n1 / n2
+                    : 0;
+
+                data = {
+                  n1: n1,
+                  n2: n2,
+                  result: result,
+                };
+              } else {
+                data = {
+                  n1: input.data.n1,
+                  n2: input.data.n2,
+                  result: input.data.result,
+                };
+              }
             }
           } else if (input.name == "Asignar") {
             data = {
               number: parseInt(
-                output.name == "Numero"
+                output.name == "Numero" || output.name == "Asignar"
                   ? output.data.number
                   : output.data.result
               ),
@@ -507,7 +642,7 @@ export default {
       });
 
       df.value.on("nodeMoved", function (id) {
-        console.log("Node moved " + id);
+        //console.log("Node moved " + id);
       });
 
       df.value.on("zoom", function (zoom) {

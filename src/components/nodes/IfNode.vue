@@ -2,7 +2,11 @@
   <div class="node1">
     <div class="title-box">If Condition</div>
     <div class="box">
-      <input disabled df-number />
+      <select df-condition>
+        <option value="mayor">N1 &#62; N2</option>
+        <option value="menor">N1 &#60; N2</option>
+        <option value="igual">N1 == N2</option>
+      </select>
     </div>
   </div>
 </template>

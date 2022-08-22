@@ -2,7 +2,9 @@
   <div class="node1">
     <div class="title-box">For Loop</div>
     <div class="box">
-      <input disabled df-number />
+      <input type="number" df-desde placeholder="desde" />
+      <input type="number" df-hasta placeholder="hasta" />
+      <input type="number" df-paso placeholder="paso" />
     </div>
   </div>
 </template>
