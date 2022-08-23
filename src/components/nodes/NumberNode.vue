@@ -125,10 +125,21 @@ export default {
                   ? output.data.number
                   : output.data.result;
               const n2 = input.data.n2;
+
+              const isTrue =
+                input.data.condition == "mayor" && n1 > n2
+                  ? true
+                  : input.data.condition == "menor" && n1 < n2
+                  ? true
+                  : input.data.condition == "igual" && n1 == n2
+                  ? true
+                  : false;
+
               data = {
                 n1: parseInt(n1),
                 n2: parseInt(n2),
                 condition: input.data.condition,
+                isTrue: isTrue,
               };
             } else {
               const n1 = input.data.n1;
@@ -136,10 +147,20 @@ export default {
                 output.name == "Numero" || output.name == "Asignar"
                   ? output.data.number
                   : output.data.result;
+              const isTrue =
+                input.data.condition == "mayor" && n1 > n2
+                  ? true
+                  : input.data.condition == "menor" && n1 < n2
+                  ? true
+                  : input.data.condition == "igual" && n1 == n2
+                  ? true
+                  : false;
+
               data = {
                 n1: parseInt(n1),
                 n2: parseInt(n2),
                 condition: input.data.condition,
+                isTrue: isTrue,
               };
             }
           } else if (input.name == "For") {

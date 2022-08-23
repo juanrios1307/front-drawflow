@@ -1,6 +1,6 @@
 <template>
   <div class="node1">
-    <div class="title-box">Substract Two Numbers</div>
+    <div class="title-box">Multiply Two Numbers</div>
     <div>Variable ID : {{ id }}</div>
     <div class="box">
       <input disabled df-result />
@@ -77,10 +77,20 @@ export default {
             n1 = outputNode.data.n1;
             n2 = assignNode.data.result;
           }
+          const isTrue =
+            input.data.condition == "mayor" && n1 > n2
+              ? true
+              : input.data.condition == "menor" && n1 < n2
+              ? true
+              : input.data.condition == "igual" && n1 == n2
+              ? true
+              : false;
+
           data = {
             n1: parseInt(n1),
             n2: parseInt(n2),
             condition: outputNode.data.condition,
+            isTrue: isTrue,
           };
         } else if (outputNode.name == "For") {
           var n1 = 0;

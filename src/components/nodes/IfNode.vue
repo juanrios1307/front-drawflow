@@ -10,6 +10,9 @@
         <option value="igual">N1 == N2</option>
       </select>
     </div>
+    <div>
+      <input df-isTrue disabled />
+    </div>
   </div>
 </template>
 
