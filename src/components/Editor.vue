@@ -516,6 +516,11 @@ export default {
             const n1 = output.data.n1;
             const n2 = output.data.n2;
 
+            df.value.removeNodeInput(
+              input.id,
+              input_class == "input_1" ? "input_2" : "input_1"
+            );
+
             if (output.data.condition == "mayor") {
               console.log("mayor");
               if (n1 > n2) {
@@ -630,6 +635,11 @@ export default {
             const n2 = output.data.n2;
             var result = 0;
 
+            df.value.removeNodeInput(
+              input.id,
+              input_class == "input_1" ? "input_2" : "input_1"
+            );
+
             for (var i = 0; i < output.data.repeat; i++) {
               if (input.name == "Suma") {
                 if (i == 0) {
@@ -686,6 +696,70 @@ export default {
       df.value.on("connectionRemoved", function (connection) {
         console.log("Connection removed");
         console.log(connection);
+
+        const input = df.value.getNodeFromId(connection.input_id);
+        const output = df.value.getNodeFromId(connection.output_id);
+
+        const input_class = connection.input_class;
+
+        var data = {};
+        if (
+          input.name == "Suma" ||
+          input.name == "Resta" ||
+          input.name == "Multiplicacion" ||
+          input.name == "Division"
+        ) {
+          var n1 = 0;
+          var n2 = 0;
+          if (input_class == "input_1") {
+            n1 = input.name == "Suma" || input.name == "Resta" ? 0 : 1;
+            n2 = input.data.n2;
+          } else {
+            n1 = input.data.n1;
+            n2 = input.name == "Suma" || input.name == "Resta" ? 0 : 1;
+          }
+          const result =
+            input.name == "Suma"
+              ? parseInt(n1) + parseInt(n2)
+              : input.name == "Resta"
+              ? parseInt(n1) - parseInt(n2)
+              : input.name == "Multiplicacion"
+              ? parseInt(n1) * parseInt(n2)
+              : input.name == "Division"
+              ? parseInt(n1) / parseInt(n2)
+              : 0;
+
+          data = {
+            n1: parseInt(n1),
+            n2: parseInt(n2),
+            result: result,
+          };
+        } else if (input.name == "If") {
+          data = {
+            n1: input_class == "input_1" ? 0 : parseInt(input.data.n1),
+            n2: input_class == "input_2" ? 0 : parseInt(input.data.n2),
+            condition: input.data.condition,
+          };
+        } else if (input.name == "For") {
+          data = {
+            n1: input_class == "input_1" ? 0 : parseInt(input.data.n1),
+            n2: input_class == "input_2" ? 0 : parseInt(input.data.n2),
+            repeat: input.data.repeat,
+          };
+        } else if (input.name == "Asignar") {
+          data = {
+            number: 0,
+          };
+        }
+
+        df.value.updateNodeDataFromId(input.id, data);
+
+        const nodeIndex = drawflowStore.nodes.findIndex(
+          (n) => n.id == input.id
+        );
+        drawflowStore.$patch((state) => {
+          state.nodes[nodeIndex].data = data;
+        });
       });
 
       df.value.on("mouseMove", function (position) {
