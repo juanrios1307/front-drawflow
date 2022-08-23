@@ -374,8 +374,10 @@ export default {
             input.inputs.input_1.connections.length > 1) ||
           (input_class == "input_2" &&
             input.inputs.input_2.connections.length > 1) ||
-          (output.name == "If" && input.name == "Asignar") ||
-          (output.name == "For" && input.name == "Asignar")
+          (output.name == "If" &&
+            (input.name == "If" || input.name == "Asignar")) ||
+          (output.name == "For" &&
+            (input.name == "Asignar" || input.name == "For"))
         ) {
           df.value.removeSingleConnection(
             connection.output_id,
@@ -385,7 +387,100 @@ export default {
           );
         } else {
           var data = {};
-          if (input.name == "Suma") {
+          if (
+            output.name == "If" &&
+            (input.name == "Suma" ||
+              input.name == "Resta" ||
+              input.name == "Multiplicacion" ||
+              input.name == "Division")
+          ) {
+            console.log("Entra aqui IF and SUMA");
+
+            const n1 = output.data.n1;
+            const n2 = output.data.n2;
+
+            df.value.removeNodeInput(
+              input.id,
+              input_class == "input_1" ? "input_2" : "input_1"
+            );
+
+            //df.value.addNodeInput(input.id);
+
+            if (output.data.isTrue) {
+              console.log("true");
+              const result =
+                input.name == "Suma"
+                  ? n1 + n2
+                  : input.name == "Resta"
+                  ? n1 - n2
+                  : input.name == "Multiplicacion"
+                  ? n1 * n2
+                  : input.name == "Division"
+                  ? n1 / n2
+                  : 0;
+
+              data = {
+                n1: n1,
+                n2: n2,
+                result: result,
+              };
+            } else {
+              data = {
+                n1: input.data.n1,
+                n2: input.data.n2,
+                result: input.data.result,
+              };
+            }
+          } else if (
+            output.name == "For" &&
+            (input.name == "Suma" ||
+              input.name == "Resta" ||
+              input.name == "Multiplicacion" ||
+              input.name == "Division")
+          ) {
+            const n1 = output.data.n1;
+            const n2 = output.data.n2;
+            var result = 0;
+
+            df.value.removeNodeInput(
+              input.id,
+              input_class == "input_1" ? "input_2" : "input_1"
+            );
+
+            for (var i = 0; i < output.data.repeat; i++) {
+              if (input.name == "Suma") {
+                if (i == 0) {
+                  result = n1 + n2;
+                } else {
+                  result += n2;
+                }
+              } else if (input.name == "Resta") {
+                if (i == 0) {
+                  result = n1 - n2;
+                } else {
+                  result -= n2;
+                }
+              } else if (input.name == "Multiplicacion") {
+                if (i == 0) {
+                  result = n1 * n2;
+                } else {
+                  result *= n2;
+                }
+              } else if (input.name == "Division") {
+                if (i == 0) {
+                  result = n1 / n2;
+                } else {
+                  result /= n2;
+                }
+              }
+            }
+
+            data = {
+              n1: n1,
+              n2: n2,
+              result: result,
+            };
+          } else if (input.name == "Suma") {
             if (input_class == "input_1") {
               const n1 =
                 output.name == "Numero" || output.name == "Asignar"
@@ -528,45 +623,6 @@ export default {
                 isTrue: isTrue,
               };
             }
-          } else if (
-            output.name == "If" &&
-            (input.name == "Suma" ||
-              input.name == "Resta" ||
-              input.name == "Multiplicacion" ||
-              input.name == "Division")
-          ) {
-            const n1 = output.data.n1;
-            const n2 = output.data.n2;
-
-            df.value.removeNodeInput(
-              input.id,
-              input_class == "input_1" ? "input_2" : "input_1"
-            );
-
-            if (output.data.isTrue) {
-              const result =
-                input.name == "Suma"
-                  ? n1 + n2
-                  : input.name == "Resta"
-                  ? n1 - n2
-                  : input.name == "Multiplicacion"
-                  ? n1 * n2
-                  : input.name == "Division"
-                  ? n1 / n2
-                  : 0;
-
-              data = {
-                n1: n1,
-                n2: n2,
-                result: result,
-              };
-            } else {
-              data = {
-                n1: input.data.n1,
-                n2: input.data.n2,
-                result: input.data.result,
-              };
-            }
           } else if (input.name == "For") {
             if (input_class == "input_1") {
               const n1 =
@@ -591,55 +647,6 @@ export default {
                 repeat: input.data.repeat,
               };
             }
-          } else if (
-            output.name == "For" &&
-            (input.name == "Suma" ||
-              input.name == "Resta" ||
-              input.name == "Multiplicacion" ||
-              input.name == "Division")
-          ) {
-            const n1 = output.data.n1;
-            const n2 = output.data.n2;
-            var result = 0;
-
-            df.value.removeNodeInput(
-              input.id,
-              input_class == "input_1" ? "input_2" : "input_1"
-            );
-
-            for (var i = 0; i < output.data.repeat; i++) {
-              if (input.name == "Suma") {
-                if (i == 0) {
-                  result = n1 + n2;
-                } else {
-                  result += n2;
-                }
-              } else if (input.name == "Resta") {
-                if (i == 0) {
-                  result = n1 - n2;
-                } else {
-                  result -= n2;
-                }
-              } else if (input.name == "Multiplicacion") {
-                if (i == 0) {
-                  result = n1 * n2;
-                } else {
-                  result *= n2;
-                }
-              } else if (input.name == "Division") {
-                if (i == 0) {
-                  result = n1 / n2;
-                } else {
-                  result /= n2;
-                }
-              }
-            }
-
-            data = {
-              n1: n1,
-              n2: n2,
-              result: result,
-            };
           } else if (input.name == "Asignar") {
             data = {
               number: parseInt(
@@ -670,7 +677,36 @@ export default {
         const input_class = connection.input_class;
 
         var data = {};
+
         if (
+          (output.name == "If" || output.name == "For") &&
+          (input.name == "Suma" ||
+            input.name == "Resta" ||
+            input.name == "Multiplicacion" ||
+            input.name == "Division")
+        ) {
+          df.value.addNodeInput(input.id);
+
+          n1 = input.name == "Suma" || input.name == "Resta" ? 0 : 1;
+          n2 = input.name == "Suma" || input.name == "Resta" ? 0 : 1;
+
+          const result =
+            input.name == "Suma"
+              ? parseInt(n1) + parseInt(n2)
+              : input.name == "Resta"
+              ? parseInt(n1) - parseInt(n2)
+              : input.name == "Multiplicacion"
+              ? parseInt(n1) * parseInt(n2)
+              : input.name == "Division"
+              ? parseInt(n1) / parseInt(n2)
+              : 0;
+
+          data = {
+            n1: parseInt(n1),
+            n2: parseInt(n2),
+            result: result,
+          };
+        } else if (
           input.name == "Suma" ||
           input.name == "Resta" ||
           input.name == "Multiplicacion" ||
