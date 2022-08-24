@@ -1,28 +1,64 @@
 <template>
-  <div class="col" id="drag">
-    <button
-      type="button"
-      class="btn btn-primary btn-lg btn-block"
-      @click="list"
-    >
-      Listar Programas
-    </button>
+  <div id="actions">
+    <div class="row list">
+      <div class="col">
+        <h4>Lista De Programas</h4>
+        <div class="programList">
+          <ul class="list-group list-group-flush">
+            <li
+              class="list-group-item a"
+              v-for="n in listPrograms"
+              :key="n.name"
+              :data-node="n.name"
+            >
+              <div class="card">
+                <div class="card-header">{{ n.name }}</div>
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col">
+                      <p class="card-title">{{ n.date }}</p>
+                      <p class="card-text">
+                        {{ n.nodos }}
+                      </p>
+                    </div>
+                    <div class="col">
+                      <button
+                        type="button"
+                        class="btn btn-primary"
+                        @click="open"
+                      >
+                        Ver
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <button
+        type="button"
+        class="btn btn-primary btn-lg btn-block"
+        @click="list"
+      >
+        Listar Programas
+      </button>
 
-    <button
-      type="button"
-      class="btn btn-primary btn-lg btn-block"
-      @click="save"
-    >
-      Guardar Programa
-    </button>
+      <button
+        type="button"
+        class="btn btn-primary btn-lg btn-block"
+        @click="save"
+      >
+        Guardar Programa
+      </button>
 
-    <button
-      type="button"
-      class="btn btn-primary btn-lg btn-block"
-      @click="open"
-    >
-      Abrir Programa
-    </button>
+      <button type="button" class="btn btn-primary btn-lg btn-block">
+        Abrir Programa
+      </button>
+    </div>
   </div>
 </template>
 
@@ -37,6 +73,7 @@ export default {
     return {
       id: "",
       df: "",
+      listPrograms: "",
     };
   },
   mounted() {
@@ -59,7 +96,35 @@ export default {
       console.log(this.df.export());
     },
 
-    list(event) {},
+    list(event) {
+      this.listPrograms = [
+        {
+          name: "Suma",
+          date: "hoy",
+          nodos: "3",
+        },
+        {
+          name: "Resta",
+          date: "hoy",
+          nodos: "3",
+        },
+        {
+          name: "Multiplicacion",
+          date: "hoy",
+          nodos: "3",
+        },
+        {
+          name: "For",
+          date: "hoy",
+          nodos: "3",
+        },
+        {
+          name: "If",
+          date: "hoy",
+          nodos: "3",
+        },
+      ];
+    },
 
     open(event) {
       const data = {};
@@ -69,3 +134,16 @@ export default {
   },
 };
 </script>
+
+<style>
+.list {
+  height: 60vh;
+
+  margin-bottom: 10px;
+}
+
+.programList {
+  height: 50vh;
+  overflow: scroll;
+}
+</style>

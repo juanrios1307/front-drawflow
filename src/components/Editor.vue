@@ -11,8 +11,8 @@
           :data-node="n.item"
           @dragstart="drag($event, n.name)"
         >
-          <div class="a">
-            <span style="color: #17202a">{{ n.name }}</span>
+          <div class="card">
+            <div class="card-body" style="color: #17202a">{{ n.name }}</div>
           </div>
         </li>
       </ul>
@@ -1051,6 +1051,14 @@ h4 {
   font-size: 16px;
   padding: 10px;
   font-weight: bold;
+}
+
+.card {
+  text-align: center;
+  height: 40px;
+}
+.card-body {
+  padding: 5px;
 }
 
 .node {
