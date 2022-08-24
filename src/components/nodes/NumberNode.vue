@@ -39,163 +39,97 @@ export default {
       if (node.outputs.output_1.connections.length > 0) {
         for (var i = 0; i < node.outputs.output_1.connections.length; i++) {
           const connection = node.outputs.output_1.connections[i];
-          const inputNode = this.df.getNodeFromId(connection.node);
+          const outputNode = this.df.getNodeFromId(connection.node);
 
           const input_class = connection.output;
-          const input = inputNode;
-          const output = node;
+
           var data = {};
-          if (input.name == "Suma") {
+          if (
+            outputNode.name == "Suma" ||
+            outputNode.name == "Resta" ||
+            outputNode.name == "Multiplicacion" ||
+            outputNode.name == "Division"
+          ) {
+            var n1 = 0;
+            var n2 = 0;
             if (input_class == "input_1") {
-              const n1 = output.data.number;
-              const n2 = input.data.n2;
+              n1 = assignNode.data.number;
+              n2 = outputNode.data.n2;
+            } else {
+              n1 = outputNode.data.n1;
+              n2 = assignNode.data.number;
+            }
+            n1 = parseInt(n1);
+            n2 = parseint(n2);
 
-              data = {
-                n1: parseInt(n1),
-                n2: parseInt(n2),
-                result: parseInt(n1) + parseInt(n2),
-              };
-            } else {
-              const n1 = input.data.n1;
-              const n2 = output.data.number;
-              data = {
-                n1: parseInt(n1),
-                n2: parseInt(n2),
-                result: parseInt(n1) + parseInt(n2),
-              };
-            }
-          } else if (input.name == "Resta") {
-            if (input_class == "input_1") {
-              const n1 = output.data.number;
-              const n2 = input.data.n2;
-              data = {
-                n1: parseInt(n1),
-                n2: parseInt(n2),
-                result: parseInt(n1) - parseInt(n2),
-              };
-            } else {
-              const n1 = input.data.n1;
-              const n2 = output.data.number;
-              data = {
-                n1: parseInt(n1),
-                n2: parseInt(n2),
-                result: parseInt(n1) - parseInt(n2),
-              };
-            }
-          } else if (input.name == "Multiplicacion") {
-            if (input_class == "input_1") {
-              const n1 = output.data.number;
-              const n2 = input.data.n2;
-              data = {
-                n1: parseInt(n1),
-                n2: parseInt(n2),
-                result: parseInt(n1) * parseInt(n2),
-              };
-            } else {
-              const n1 = input.data.n1;
-              const n2 = output.data.number;
-              data = {
-                n1: parseInt(n1),
-                n2: parseInt(n2),
-                result: parseInt(n1) * parseInt(n2),
-              };
-            }
-          } else if (input.name == "Division") {
-            if (input_class == "input_1") {
-              const n1 = output.data.number;
-              const n2 = input.data.n2;
-              data = {
-                n1: parseInt(n1),
-                n2: parseInt(n2),
-                result: parseInt(n1) / parseInt(n2),
-              };
-            } else {
-              const n1 = input.data.n1;
-              const n2 = output.data.number;
-              data = {
-                n1: parseInt(n1),
-                n2: parseInt(n2),
-                result: parseInt(n1) / parseInt(n2),
-              };
-            }
-          } else if (input.name == "If") {
-            if (input_class == "input_1") {
-              const n1 =
-                output.name == "Numero" || output.name == "Asignar"
-                  ? output.data.number
-                  : output.data.result;
-              const n2 = input.data.n2;
+            const result =
+              outputNode.name == "Suma"
+                ? n1 + n2
+                : outputNode.name == "Resta"
+                ? n1 - n2
+                : outputNode.name == "Multiplicacion"
+                ? n1 * n2
+                : outputNode.name == "Division"
+                ? n1 / n2
+                : 0;
 
-              const isTrue =
-                input.data.condition == "mayor" && n1 > n2
-                  ? true
-                  : input.data.condition == "menor" && n1 < n2
-                  ? true
-                  : input.data.condition == "igual" && n1 == n2
-                  ? true
-                  : false;
-
-              data = {
-                n1: parseInt(n1),
-                n2: parseInt(n2),
-                condition: input.data.condition,
-                isTrue: isTrue,
-              };
-            } else {
-              const n1 = input.data.n1;
-              const n2 =
-                output.name == "Numero" || output.name == "Asignar"
-                  ? output.data.number
-                  : output.data.result;
-              const isTrue =
-                input.data.condition == "mayor" && n1 > n2
-                  ? true
-                  : input.data.condition == "menor" && n1 < n2
-                  ? true
-                  : input.data.condition == "igual" && n1 == n2
-                  ? true
-                  : false;
-
-              data = {
-                n1: parseInt(n1),
-                n2: parseInt(n2),
-                condition: input.data.condition,
-                isTrue: isTrue,
-              };
-            }
-          } else if (input.name == "For") {
-            if (input_class == "input_1") {
-              const n1 =
-                output.name == "Numero" || output.name == "Asignar"
-                  ? output.data.number
-                  : output.data.result;
-              const n2 = input.data.n2;
-              data = {
-                n1: parseInt(n1),
-                n2: parseInt(n2),
-                repeat: input.data.repeat,
-              };
-            } else {
-              const n1 = input.data.n1;
-              const n2 =
-                output.name == "Numero" || output.name == "Asignar"
-                  ? output.data.number
-                  : output.data.result;
-              data = {
-                n1: parseInt(n1),
-                n2: parseInt(n2),
-                repeat: input.data.repeat,
-              };
-            }
-          } else if (input.name == "Asignar") {
             data = {
-              number: parseInt(
-                output.name == "Numero"
-                  ? output.data.number
-                  : output.data.result
-              ),
+              n1: n1,
+              n2: n2,
+              result: result,
+            };
+          } else if (input.name == "If") {
+            var n1 = 0;
+            var n2 = 0;
+            if (output.output == "input_1") {
+              n1 = node.data.number;
+              n2 = outputNode.data.n2;
+            } else {
+              n1 = outputNode.data.n1;
+              n2 = node.data.number;
+            }
+
+            n1 = parseInt(n1);
+            n2 = parseint(n2);
+
+            const isTrue =
+              outputNode.data.condition == "mayor" && n1 > n2
+                ? true
+                : outputNode.data.condition == "menor" && n1 < n2
+                ? true
+                : outputNode.data.condition == "igual" && n1 == n2
+                ? true
+                : false;
+
+            data = {
+              n1: parseInt(n1),
+              n2: parseInt(n2),
+              condition: outputNode.data.condition,
+              isTrue: isTrue,
+            };
+          } else if (outputNode.name == "For") {
+            var n1 = 0;
+            var n2 = 0;
+
+            if (output.output == "input_1") {
+              n1 = node.data.number;
+              n2 = outputNode.data.n2;
+            } else {
+              n1 = outputNode.data.n1;
+              n2 = node.data.number;
+            }
+
+            data = {
+              n1: parseInt(n1),
+              n2: parseInt(n2),
+              repeat: outputNode.data.repeat,
+            };
+          } else if (outputNode.name == "Asignar") {
+            data = {
+              number: assignNode.data.number,
             };
           }
+
           this.df.updateNodeDataFromId(input.id, data);
 
           const nodeIndex = this.drawflowStore.nodes.findIndex(

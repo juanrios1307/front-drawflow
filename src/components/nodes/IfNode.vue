@@ -29,8 +29,62 @@ export default {
   },
   watch: {
     "node.data": function (newData, oldData) {
-      console.log("Changing Data of Node : " + this.id);
-      console.log(this.df.getNodeFromId(this.id));
+      console.log("Changing Data of If Node : " + this.id);
+      //console.log(this.df.getNodeFromId(this.id));
+
+      const assignNode = this.df.getNodeFromId(this.id);
+
+      const outputs = assignNode.outputs.output_1.connections;
+
+      outputs.forEach((output) => {
+        const outputNode = this.df.getNodeFromId(output.node);
+        console.log(outputNode);
+        var data = {};
+        if (
+          outputNode.name == "Suma" ||
+          outputNode.name == "Resta" ||
+          outputNode.name == "Multiplicacion" ||
+          outputNode.name == "Division"
+        ) {
+          var n1 = parseInt(assignNode.data.n1);
+          var n2 = parseInt(assignNode.data.n2);
+
+          const result =
+            outputNode.name == "Suma"
+              ? n1 + n2
+              : outputNode.name == "Resta"
+              ? n1 - n2
+              : outputNode.name == "Multiplicacion"
+              ? n1 * n2
+              : outputNode.name == "Division"
+              ? n1 / n2
+              : 0;
+
+          data = {
+            n1: n1,
+            n2: n2,
+            result: result,
+          };
+        } else if (outputNode.name == "For") {
+          var n1 = parseInt(assignNode.data.n1);
+          var n2 = parseInt(assignNode.data.n2);
+
+          data = {
+            n1: parseInt(n1),
+            n2: parseInt(n2),
+            repeat: outputNode.data.repeat,
+          };
+        }
+
+        this.df.updateNodeDataFromId(outputNode.id, data);
+
+        const nodeIndex = this.drawflowStore.nodes.findIndex(
+          (n) => n.id == outputNode.id
+        );
+        this.drawflowStore.$patch((state) => {
+          state.nodes[nodeIndex].data = data;
+        });
+      });
     },
   },
   mounted() {

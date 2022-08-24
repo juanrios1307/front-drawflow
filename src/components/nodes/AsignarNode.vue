@@ -22,7 +22,7 @@ export default {
   },
   watch: {
     "node.data": function (newData, oldData) {
-      console.log("Changing Data of Node : " + this.id);
+      console.log("Changing Data of Assign Node : " + this.id);
       //console.log(this.df.getNodeFromId(this.id));
 
       const assignNode = this.df.getNodeFromId(this.id);
@@ -77,11 +77,11 @@ export default {
           }
 
           const isTrue =
-            input.data.condition == "mayor" && n1 > n2
+            outputNode.data.condition == "mayor" && n1 > n2
               ? true
-              : input.data.condition == "menor" && n1 < n2
+              : outputNode.data.condition == "menor" && n1 < n2
               ? true
-              : input.data.condition == "igual" && n1 == n2
+              : outputNode.data.condition == "igual" && n1 == n2
               ? true
               : false;
 
