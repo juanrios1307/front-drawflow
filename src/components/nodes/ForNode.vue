@@ -1,6 +1,7 @@
 <template>
   <div class="node1">
     <div class="title-box">For Loop</div>
+    <div>Variable ID : {{ id }}</div>
     <div class="box">
       <input type="number" df-n1 placeholder="N1" disabled />
       <input type="number" df-n2 placeholder="N2" disabled />
@@ -30,19 +31,24 @@ export default {
   watch: {
     "node.data": function (newData, oldData) {
       console.log("Changing Data of For Node : " + this.id);
-      //console.log(this.df.getNodeFromId(this.id));
+      console.log(this.df.getNodeFromId(this.id));
 
       const assignNode = this.df.getNodeFromId(this.id);
 
       const outputs = assignNode.outputs.output_1.connections;
 
+      var n1 = parseInt(assignNode.data.n1);
+      var n2 = parseInt(assignNode.data.n2);
+
       outputs.forEach((output) => {
         const outputNode = this.df.getNodeFromId(output.node);
         console.log(outputNode);
         var data = {};
-        var n2Alt = 0;
 
-        for (var i = 0; i < outputNode.data.repeat; i++) {
+        var n2Alt = 0;
+        var result = 0;
+
+        for (var i = 0; i < assignNode.data.repeat; i++) {
           if (outputNode.name == "Suma") {
             if (i == 0) {
               result = n1 + n2;
@@ -84,12 +90,15 @@ export default {
           result: result,
         };
 
-        df.value.updateNodeDataFromId(outputNode.id, data);
+        console.log("DATA FOR");
+        console.log(data);
 
-        const nodeIndex = drawflowStore.nodes.findIndex(
+        this.df.updateNodeDataFromId(outputNode.id, data);
+
+        const nodeIndex = this.drawflowStore.nodes.findIndex(
           (n) => n.id == outputNode.id
         );
-        drawflowStore.$patch((state) => {
+        this.drawflowStore.$patch((state) => {
           state.nodes[nodeIndex].data = data;
         });
       });
@@ -105,6 +114,7 @@ export default {
   },
   updated() {
     this.node = this.drawflowStore.getNodeById(this.id);
+    console.log(this.node);
   },
   setup() {
     const drawflowStore = useDrawflowStore();

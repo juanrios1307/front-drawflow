@@ -1,6 +1,7 @@
 <template>
   <div class="node1">
     <div class="title-box">If Condition</div>
+    <div>Variable ID : {{ id }}</div>
     <div class="box">
       <input type="number" df-n1 placeholder="N1" disabled />
       <input type="number" df-n2 placeholder="N2" disabled />
@@ -34,46 +35,73 @@ export default {
 
       const assignNode = this.df.getNodeFromId(this.id);
 
+      const isTrue = assignNode.data.isTrue;
+
       const outputs = assignNode.outputs.output_1.connections;
 
       outputs.forEach((output) => {
         const outputNode = this.df.getNodeFromId(output.node);
         console.log(outputNode);
         var data = {};
-        if (
-          outputNode.name == "Suma" ||
-          outputNode.name == "Resta" ||
-          outputNode.name == "Multiplicacion" ||
-          outputNode.name == "Division"
-        ) {
-          var n1 = parseInt(assignNode.data.n1);
-          var n2 = parseInt(assignNode.data.n2);
 
-          const result =
-            outputNode.name == "Suma"
-              ? n1 + n2
-              : outputNode.name == "Resta"
-              ? n1 - n2
-              : outputNode.name == "Multiplicacion"
-              ? n1 * n2
-              : outputNode.name == "Division"
-              ? n1 / n2
-              : 0;
+        if (isTrue) {
+          if (
+            outputNode.name == "Suma" ||
+            outputNode.name == "Resta" ||
+            outputNode.name == "Multiplicacion" ||
+            outputNode.name == "Division"
+          ) {
+            var n1 = parseInt(assignNode.data.n1);
+            var n2 = parseInt(assignNode.data.n2);
 
-          data = {
-            n1: n1,
-            n2: n2,
-            result: result,
-          };
-        } else if (outputNode.name == "For") {
-          var n1 = parseInt(assignNode.data.n1);
-          var n2 = parseInt(assignNode.data.n2);
+            const result =
+              outputNode.name == "Suma"
+                ? n1 + n2
+                : outputNode.name == "Resta"
+                ? n1 - n2
+                : outputNode.name == "Multiplicacion"
+                ? n1 * n2
+                : outputNode.name == "Division"
+                ? n1 / n2
+                : 0;
 
-          data = {
-            n1: parseInt(n1),
-            n2: parseInt(n2),
-            repeat: outputNode.data.repeat,
-          };
+            data = {
+              n1: n1,
+              n2: n2,
+              result: result,
+            };
+          } else if (outputNode.name == "For") {
+            var n1 = parseInt(assignNode.data.n1);
+            var n2 = parseInt(assignNode.data.n2);
+
+            data = {
+              n1: parseInt(n1),
+              n2: parseInt(n2),
+              repeat: outputNode.data.repeat,
+            };
+          }
+        } else {
+          if (
+            outputNode.name == "Suma" ||
+            outputNode.name == "Resta" ||
+            outputNode.name == "Multiplicacion" ||
+            outputNode.name == "Division"
+          ) {
+            data = {
+              n1:
+                outputNode.name == "Suma" || outputNode.name == "Resta" ? 0 : 1,
+              n2:
+                outputNode.name == "Suma" || outputNode.name == "Resta" ? 0 : 1,
+              result:
+                outputNode.name == "Suma" || outputNode.name == "Resta" ? 0 : 1,
+            };
+          } else if (outputNode.name == "For") {
+            data = {
+              n1: parseInt(0),
+              n2: parseInt(0),
+              repeat: outputNode.data.repeat,
+            };
+          }
         }
 
         this.df.updateNodeDataFromId(outputNode.id, data);
