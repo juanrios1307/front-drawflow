@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import { h, getCurrentInstance, render, onMounted, shallowRef } from "vue";
+import { h, getCurrentInstance, render, onMounted, shallowRef, ref } from "vue";
 import Drawflow from "drawflow";
 import "drawflow/dist/drawflow.min.css";
 
@@ -309,32 +309,28 @@ export default {
       df.value.on("nodeCreated", function (id) {
         console.log("Node created " + id);
         const node = df.value.getNodeFromId(id);
-        console.log(node);
 
-        var code = "";
+        var code = [];
 
         if (node.name == "Numero") {
-          code = "var_" + id + " = " + node.data.number;
+          code = [node.name + "_" + id, " = ", node.data.number];
         } else if (
           node.name == "Suma" ||
           node.name == "Resta" ||
           node.name == "Multiplicacion" ||
           node.name == "Division"
         ) {
-          const n1 = node.data.n1;
-          const n2 = node.data.n2;
-
-          const result =
+          const expresion =
             node.name == "Suma"
-              ? n1 + n2
+              ? ["0", " + ", "0"]
               : node.name == "Resta"
-              ? n1 - n2
+              ? ["0", " - ", "0"]
               : node.name == "Multiplicacion"
-              ? n1 * n2
+              ? ["1", " * ", "1"]
               : node.name == "Division"
-              ? n1 / n2
+              ? ["1", " / ", "1"]
               : 0;
-          code = node.name + "_" + id + " = " + result;
+          code = [node.name + "_" + id, " = "].concat(expresion);
         } else if (node.name == "If") {
           const cond =
             node.data.condition == "mayor"
@@ -342,11 +338,11 @@ export default {
               : node.data.condition == "menor"
               ? "<"
               : "==";
-          code = "if 0 " + cond + " 0:";
+          code = ["if ", "0", " " + cond + " ", "0", ":"];
         } else if (node.name == "For") {
-          code = "for i in range (" + node.data.n2 + "):";
+          code = ["for i in range (", node.data.repeat, "):"];
         } else if (node.name == "Asignar") {
-          code = "var_" + id + " = " + node.data.number;
+          code = [node.name + "_" + id, " = ", node.data.number];
         }
 
         drawflowStore.$patch((state) => {
@@ -361,6 +357,7 @@ export default {
           state.code.push({
             id: id,
             code: code,
+            aux: { v1: 0, v2: 0 },
           });
         });
       });
@@ -370,8 +367,6 @@ export default {
 
         const nodeIndex = drawflowStore.nodes.findIndex((n) => n.id == id);
         const codeIndex = drawflowStore.code.findIndex((n) => n.id == id);
-
-        console.log(nodeIndex);
 
         drawflowStore.$patch((state) => {
           state.nodes.splice(nodeIndex, 1);
@@ -384,7 +379,8 @@ export default {
 
       df.value.on("nodeDataChanged", function (id) {
         console.log("Node data changed " + id);
-        const data = df.value.getNodeFromId(id).data;
+        const node = df.value.getNodeFromId(id);
+        const data = node.data;
 
         const nodeIndex = drawflowStore.nodes.findIndex((n) => n.id == id);
         const codeIndex = drawflowStore.code.findIndex((n) => n.id == id);
@@ -422,6 +418,10 @@ export default {
         const input = df.value.getNodeFromId(connection.input_id);
         const output = df.value.getNodeFromId(connection.output_id);
 
+        //Obtener código input
+        var codeInput = drawflowStore.getLineCodeById(input.id).code;
+        var aux = {};
+
         //Codigo para realizar operaciones de los nodos
         const input_class = connection.input_class;
         if (
@@ -444,7 +444,57 @@ export default {
           );
         } else {
           var data = {};
-          if (
+          if (output.name == "If" && input.name == "For") {
+            const n1 = output.data.n1;
+            const n2 = output.data.n2;
+
+            df.value.removeNodeInput(
+              input.id,
+              input_class == "input_1" ? "input_2" : "input_1"
+            );
+
+            var vars = drawflowStore.getLineCodeById(output.id).aux;
+            const TAB = "\t";
+            codeInput[0] = TAB + codeInput[0];
+
+            aux = vars;
+
+            data = {
+              n1: parseInt(n1),
+              n2: parseInt(n2),
+              repeat: input.data.repeat,
+            };
+
+            for (
+              var i = 0;
+              i < input.outputs.output_1.connections.length;
+              i++
+            ) {
+              const connection = input.outputs.output_1.connections[i];
+              const inputNode = df.value.getNodeFromId(connection.node);
+
+              var codeInputCon = drawflowStore.getLineCodeById(
+                inputNode.id
+              ).code;
+              if (
+                inputNode.name == "Suma" ||
+                inputNode.name == "Resta" ||
+                inputNode.name == "Multiplicacion" ||
+                inputNode.name == "Division"
+              ) {
+                codeInputCon[0] = TAB + codeInputCon[0];
+                codeInputCon[2] = aux.v1;
+                codeInputCon[4] = aux.v2;
+
+                const codeIndexCon = drawflowStore.code.findIndex(
+                  (n) => n.id == inputNode.id
+                );
+                drawflowStore.$patch((state) => {
+                  state.code[codeIndexCon].code = codeInputCon;
+                });
+              }
+            }
+          } else if (
             output.name == "If" &&
             (input.name == "Suma" ||
               input.name == "Resta" ||
@@ -458,8 +508,6 @@ export default {
               input.id,
               input_class == "input_1" ? "input_2" : "input_1"
             );
-
-            //df.value.addNodeInput(input.id);
 
             if (output.data.isTrue) {
               console.log("true");
@@ -486,6 +534,14 @@ export default {
                 result: input.data.result,
               };
             }
+
+            var vars = drawflowStore.getLineCodeById(output.id).aux;
+
+            const TAB = "\t";
+
+            codeInput[0] = TAB + codeInput[0];
+            codeInput[2] = vars.v1;
+            codeInput[4] = vars.v2;
           } else if (
             output.name == "For" &&
             (input.name == "Suma" ||
@@ -539,6 +595,13 @@ export default {
               }
             }
 
+            var vars = drawflowStore.getLineCodeById(output.id).aux;
+            const TAB = "\t";
+
+            codeInput[0] = TAB + codeInput[0];
+            codeInput[2] = vars.v1;
+            codeInput[4] = vars.v2;
+
             data = {
               n1: n1,
               n2: n2Alt,
@@ -552,7 +615,7 @@ export default {
           ) {
             var n1 = 0;
             var n2 = 0;
-            var code = "";
+
             if (input_class == "input_1") {
               n1 =
                 output.name == "Numero" || output.name == "Asignar"
@@ -560,20 +623,7 @@ export default {
                   : output.data.result;
               n2 = input.data.n2;
 
-              var input2 =
-                input.inputs.input_2.connections > 0
-                  ? "var_" + input.inputs.input_2.connections[0].node
-                  : 0;
-
-              code =
-                "" +
-                input.name +
-                "_" +
-                input.id +
-                "= var_" +
-                output.id +
-                " + " +
-                input2;
+              codeInput[2] = output.name + "_" + output.id;
             } else {
               n1 = input.data.n1;
               n2 =
@@ -581,21 +631,7 @@ export default {
                   ? output.data.number
                   : output.data.result;
 
-              var input1 =
-                input.inputs.input_1.connections > 0
-                  ? "var_" + input.inputs.input_1.connections[0].node
-                  : 0;
-
-              code =
-                "" +
-                input.name +
-                "_" +
-                input.id +
-                " = " +
-                input1 +
-                " + " +
-                "var_" +
-                output.id;
+              codeInput[4] = output.name + "_" + output.id;
             }
 
             n1 = parseInt(n1);
@@ -612,29 +648,41 @@ export default {
                 ? n1 / n2
                 : 0;
 
-            code += result;
-
             data = {
               n1: parseInt(n1),
               n2: parseInt(n2),
               result: result,
-              code: code,
             };
           } else if (input.name == "If") {
             var n1 = 0;
             var n2 = 0;
+            var vars = drawflowStore.getLineCodeById(input.id).aux;
+
             if (input_class == "input_1") {
               n1 =
                 output.name == "Numero" || output.name == "Asignar"
                   ? output.data.number
                   : output.data.result;
               n2 = input.data.n2;
+
+              aux = {
+                v1: output.name + "_" + output.id,
+                v2: vars.v2,
+              };
+
+              codeInput[1] = output.name + "_" + output.id;
             } else {
               n1 = input.data.n1;
               n2 =
                 output.name == "Numero" || output.name == "Asignar"
                   ? output.data.number
                   : output.data.result;
+              codeInput[3] = output.name + "_" + output.id;
+
+              aux = {
+                v1: vars.v1,
+                v2: output.name + "_" + output.id,
+              };
             }
 
             n1 = parseInt(n1);
@@ -655,27 +703,108 @@ export default {
               condition: input.data.condition,
               isTrue: isTrue,
             };
+
+            for (
+              var i = 0;
+              i < input.outputs.output_1.connections.length;
+              i++
+            ) {
+              const connection = input.outputs.output_1.connections[i];
+              const inputNode = df.value.getNodeFromId(connection.node);
+
+              var codeInputCon = drawflowStore.getLineCodeById(
+                inputNode.id
+              ).code;
+              if (
+                inputNode.name == "Suma" ||
+                inputNode.name == "Resta" ||
+                inputNode.name == "Multiplicacion" ||
+                inputNode.name == "Division"
+              ) {
+                codeInputCon[2] = aux.v1;
+                codeInputCon[4] = aux.v2;
+
+                const codeIndexCon = drawflowStore.code.findIndex(
+                  (n) => n.id == inputNode.id
+                );
+                drawflowStore.$patch((state) => {
+                  state.code[codeIndexCon].code = codeInputCon;
+                });
+              } else if (inputNode.name == "For") {
+                const codeIndexCon = drawflowStore.code.findIndex(
+                  (n) => n.id == inputNode.id
+                );
+                drawflowStore.$patch((state) => {
+                  state.code[codeIndexCon].aux = aux;
+                });
+              }
+            }
           } else if (input.name == "For") {
             var n1 = 0;
             var n2 = 0;
+            var var1 = 0;
+            var var2 = 0;
+            var vars = drawflowStore.getLineCodeById(input.id).aux;
+
             if (input_class == "input_1") {
               n1 =
                 output.name == "Numero" || output.name == "Asignar"
                   ? output.data.number
                   : output.data.result;
               n2 = input.data.n2;
+
+              var1 = output.name + "_" + output.id;
+              var2 = vars.v2;
             } else {
               n1 = input.data.n1;
               n2 =
                 output.name == "Numero" || output.name == "Asignar"
                   ? output.data.number
                   : output.data.result;
+
+              var1 = vars.v1;
+              var2 = output.name + "_" + output.id;
             }
+
+            aux = {
+              v1: var1,
+              v2: var2,
+            };
+
             data = {
               n1: parseInt(n1),
               n2: parseInt(n2),
               repeat: input.data.repeat,
             };
+
+            for (
+              var i = 0;
+              i < input.outputs.output_1.connections.length;
+              i++
+            ) {
+              const connection = input.outputs.output_1.connections[i];
+              const inputNode = df.value.getNodeFromId(connection.node);
+
+              var codeInputCon = drawflowStore.getLineCodeById(
+                inputNode.id
+              ).code;
+              if (
+                inputNode.name == "Suma" ||
+                inputNode.name == "Resta" ||
+                inputNode.name == "Multiplicacion" ||
+                inputNode.name == "Division"
+              ) {
+                codeInputCon[2] = aux.v1;
+                codeInputCon[4] = aux.v2;
+
+                const codeIndexCon = drawflowStore.code.findIndex(
+                  (n) => n.id == inputNode.id
+                );
+                drawflowStore.$patch((state) => {
+                  state.code[codeIndexCon].code = codeInputCon;
+                });
+              }
+            }
           } else if (input.name == "Asignar") {
             data = {
               number: parseInt(
@@ -684,10 +813,9 @@ export default {
                   : output.data.result
               ),
             };
-          }
 
-          console.log("DATA CREATED");
-          console.log(data);
+            codeInput[2] = output.name + "_" + output.id;
+          }
 
           df.value.updateNodeDataFromId(input.id, data);
 
@@ -696,6 +824,17 @@ export default {
           );
           drawflowStore.$patch((state) => {
             state.nodes[nodeIndex].data = data;
+          });
+
+          const codeIndexNode = drawflowStore.code.findIndex(
+            (n) => n.id == input.id
+          );
+
+          drawflowStore.$patch((state) => {
+            state.code[codeIndexNode].code = codeInput;
+          });
+          drawflowStore.$patch((state) => {
+            state.code[codeIndexNode].aux = aux;
           });
         }
       });

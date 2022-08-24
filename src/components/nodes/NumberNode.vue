@@ -36,6 +36,19 @@ export default {
     onChange(event) {
       const node = this.df.getNodeFromId(this.id);
 
+      var codeNode = this.drawflowStore.getLineCodeById(this.id).code;
+
+      codeNode[2] = node.data.number;
+
+      console.log(codeNode);
+
+      const codeIndexNode = this.drawflowStore.code.findIndex(
+        (n) => n.id == this.id
+      );
+      this.drawflowStore.$patch((state) => {
+        state.code[codeIndexNode].code = codeNode;
+      });
+
       if (node.outputs.output_1.connections.length > 0) {
         for (var i = 0; i < node.outputs.output_1.connections.length; i++) {
           const connection = node.outputs.output_1.connections[i];

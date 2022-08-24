@@ -1,11 +1,10 @@
 <template>
   <div class="container1">
     <div class="row">
-      <div class="col-7" id="drag">
+      <div class="col-6" id="drag">
         <Editor />
       </div>
-      <div class="col-3" id="pythonCode">
-        <h4>Código Python</h4>
+      <div class="col-4" id="python">
         <Python />
       </div>
       <div class="col-2" id="api">

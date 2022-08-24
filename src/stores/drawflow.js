@@ -18,6 +18,9 @@ export const useDrawflowStore = defineStore({
     getCode(state) {
       return state.code;
     },
+    getLineCodeById: (state) => {
+      return (id) => state.code.find((line) => line.id == id);
+    },
   },
   actions: {
     increment() {

@@ -149,6 +149,28 @@ export default {
           ? true
           : false;
 
+      var codeNode = this.drawflowStore.getLineCodeById(this.id).code;
+
+      console.log(codeNode);
+
+      const cond =
+        node.data.condition == "mayor"
+          ? " > "
+          : node.data.condition == "menor"
+          ? " < "
+          : " == ";
+
+      codeNode[2] = cond;
+
+      console.log(codeNode);
+
+      const codeIndexNode = this.drawflowStore.code.findIndex(
+        (n) => n.id == this.id
+      );
+      this.drawflowStore.$patch((state) => {
+        state.code[codeIndexNode].code = codeNode;
+      });
+
       const data1 = {
         n1: n1,
         n2: n2,

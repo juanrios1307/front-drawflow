@@ -1,15 +1,18 @@
 <template>
   <div class="col" id="drag">
     <h4>Python Code</h4>
+
     <ul class="list-group list-group-flush">
       <li
         class="list-group-item a"
-        v-for="n in code"
+        v-for="n in drawflowStore.code"
         :key="n.id"
         draggable="true"
       >
         <div class="a">
-          <span style="color: #17202a">{{ n.code }}</span>
+          <code style="color: #17202a">
+            <pre>{{ "".concat(...n.code) }}</pre>
+          </code>
         </div>
       </li>
     </ul>
@@ -23,23 +26,11 @@ export default {
   name: "python-draw-flow",
   components: {},
   data() {
-    return {
-      code: [],
-    };
-  },
-  watch: {
-    "code.code": function (newData, oldData) {
-      console.log("CHANGING CODE WATCH");
-    },
-  },
-  mounted() {},
-  updated() {
-    console.log("CHANGING CODE");
-    this.code = this.drawflowStore.code;
-    console.log(this.code);
+    return {};
   },
   setup() {
     const drawflowStore = useDrawflowStore();
+
     return {
       drawflowStore,
     };
