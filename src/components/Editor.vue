@@ -737,6 +737,41 @@ export default {
                 drawflowStore.$patch((state) => {
                   state.code[codeIndexCon].aux = aux;
                 });
+
+                for (
+                  var j = 0;
+                  j < inputNode.outputs.output_1.connections.length;
+                  j++
+                ) {
+                  const connectionFor =
+                    inputNode.outputs.output_1.connections[j];
+                  const inputNodeFor = df.value.getNodeFromId(
+                    connectionFor.node
+                  );
+
+                  var codeInputConFor = drawflowStore.getLineCodeById(
+                    inputNodeFor.id
+                  ).code;
+                  console.log("CONNECTION FOR");
+                  console.log(codeInputConFor);
+
+                  if (
+                    inputNodeFor.name == "Suma" ||
+                    inputNodeFor.name == "Resta" ||
+                    inputNodeFor.name == "Multiplicacion" ||
+                    inputNodeFor.name == "Division"
+                  ) {
+                    codeInputConFor[2] = aux.v1;
+                    codeInputConFor[4] = aux.v2;
+
+                    const codeIndexConFor = drawflowStore.code.findIndex(
+                      (n) => n.id == inputNodeFor.id
+                    );
+                    drawflowStore.$patch((state) => {
+                      state.code[codeIndexConFor].code = codeInputConFor;
+                    });
+                  }
+                }
               }
             }
           } else if (input.name == "For") {
