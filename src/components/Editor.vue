@@ -180,7 +180,7 @@ export default {
             pos_x,
             pos_y,
             "number node",
-            { number: 10, code: "" },
+            { number: 0 },
             name,
             "vue"
           );
@@ -195,7 +195,7 @@ export default {
             pos_x,
             pos_y,
             "sum node",
-            { n1: 0, n2: 0, result: 0, code: "" },
+            { n1: 0, n2: 0, result: 0 },
             name,
             "vue"
           );
@@ -208,7 +208,7 @@ export default {
             pos_x,
             pos_y,
             "rest node",
-            { n1: 0, n2: 0, result: 0, code: "" },
+            { n1: 0, n2: 0, result: 0 },
             name,
             "vue"
           );
@@ -221,7 +221,7 @@ export default {
             pos_x,
             pos_y,
             "mult node",
-            { n1: 1, n2: 1, result: 1, code: "" },
+            { n1: 1, n2: 1, result: 1 },
             name,
             "vue"
           );
@@ -234,7 +234,7 @@ export default {
             pos_x,
             pos_y,
             "div node",
-            { n1: 1, n2: 1, result: 1, code: "" },
+            { n1: 1, n2: 1, result: 1 },
             name,
             "vue"
           );
@@ -247,7 +247,7 @@ export default {
             pos_x,
             pos_y,
             "if node",
-            { n1: 0, n2: 0, condition: "mayor", isTrue: false, code: "" },
+            { n1: 0, n2: 0, condition: "mayor", isTrue: false },
             name,
             "vue"
           );
@@ -260,7 +260,7 @@ export default {
             pos_x,
             pos_y,
             "for node",
-            { n1: 0, n2: 1, repeat: 1, code: "" },
+            { n1: 0, n2: 1, repeat: 1 },
             name,
             "vue"
           );
@@ -273,7 +273,7 @@ export default {
             pos_x,
             pos_y,
             "asignar node",
-            { number: 0, code: "" },
+            { number: 0 },
             name,
             "vue"
           );
@@ -310,13 +310,57 @@ export default {
         console.log("Node created " + id);
         const node = df.value.getNodeFromId(id);
         console.log(node);
+
+        var code = "";
+
+        if (node.name == "Numero") {
+          code = "var_" + id + " = " + node.data.number;
+        } else if (
+          node.name == "Suma" ||
+          node.name == "Resta" ||
+          node.name == "Multiplicacion" ||
+          node.name == "Division"
+        ) {
+          const n1 = node.data.n1;
+          const n2 = node.data.n2;
+
+          const result =
+            node.name == "Suma"
+              ? n1 + n2
+              : node.name == "Resta"
+              ? n1 - n2
+              : node.name == "Multiplicacion"
+              ? n1 * n2
+              : node.name == "Division"
+              ? n1 / n2
+              : 0;
+          code = node.name + "_" + id + " = " + result;
+        } else if (node.name == "If") {
+          const cond =
+            node.data.condition == "mayor"
+              ? ">"
+              : node.data.condition == "menor"
+              ? "<"
+              : "==";
+          code = "if 0 " + cond + " 0:";
+        } else if (node.name == "For") {
+          code = "for i in range (" + node.data.n2 + "):";
+        } else if (node.name == "Asignar") {
+          code = "var_" + id + " = " + node.data.number;
+        }
+
         drawflowStore.$patch((state) => {
           state.nodes.push({
             id: id,
             name: node.name,
             data: node.data,
-            inputs: [],
-            outputs: [],
+          });
+        });
+
+        drawflowStore.$patch((state) => {
+          state.code.push({
+            id: id,
+            code: code,
           });
         });
       });
@@ -325,11 +369,16 @@ export default {
         console.log("Node removed " + id);
 
         const nodeIndex = drawflowStore.nodes.findIndex((n) => n.id == id);
+        const codeIndex = drawflowStore.code.findIndex((n) => n.id == id);
 
         console.log(nodeIndex);
 
         drawflowStore.$patch((state) => {
           state.nodes.splice(nodeIndex, 1);
+        });
+
+        drawflowStore.$patch((state) => {
+          state.code.splice(codeIndex, 1);
         });
       });
 
@@ -338,18 +387,24 @@ export default {
         const data = df.value.getNodeFromId(id).data;
 
         const nodeIndex = drawflowStore.nodes.findIndex((n) => n.id == id);
+        const codeIndex = drawflowStore.code.findIndex((n) => n.id == id);
 
         console.log(nodeIndex);
 
         drawflowStore.$patch((state) => {
           state.nodes[nodeIndex].data = data;
         });
+
+        /* drawflowStore.$patch((state) => {
+          state.code[codeIndex].code = code;
+        });*/
       });
 
       df.value.on("nodeSelected", function (id) {
         console.log("Node selected " + id);
         console.log(df.value.getNodeFromId(id));
         console.log(drawflowStore.nodes);
+        console.log(drawflowStore.code);
       });
 
       df.value.on("moduleCreated", function (name) {

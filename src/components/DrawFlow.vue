@@ -6,6 +6,7 @@
       </div>
       <div class="col-3" id="pythonCode">
         <h4>Código Python</h4>
+        <Python />
       </div>
       <div class="col-2" id="api">
         <h4>Operaciones Backend</h4>
@@ -17,11 +18,12 @@
 <script>
 import Menu from "./Menu.vue";
 import Editor from "./Editor.vue";
+import Python from "./Python.vue";
 
 export default {
   name: "draw-flow",
 
-  components: { Menu, Editor },
+  components: { Menu, Editor, Python },
 };
 </script>
 
