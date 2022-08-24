@@ -53,14 +53,14 @@ export default {
             var n1 = 0;
             var n2 = 0;
             if (input_class == "input_1") {
-              n1 = assignNode.data.number;
+              n1 = node.data.number;
               n2 = outputNode.data.n2;
             } else {
               n1 = outputNode.data.n1;
-              n2 = assignNode.data.number;
+              n2 = node.data.number;
             }
             n1 = parseInt(n1);
-            n2 = parseint(n2);
+            n2 = parseInt(n2);
 
             const result =
               outputNode.name == "Suma"
@@ -78,10 +78,10 @@ export default {
               n2: n2,
               result: result,
             };
-          } else if (input.name == "If") {
+          } else if (outputNode.name == "If") {
             var n1 = 0;
             var n2 = 0;
-            if (output.output == "input_1") {
+            if (input_class == "input_1") {
               n1 = node.data.number;
               n2 = outputNode.data.n2;
             } else {
@@ -90,7 +90,7 @@ export default {
             }
 
             n1 = parseInt(n1);
-            n2 = parseint(n2);
+            n2 = parseInt(n2);
 
             const isTrue =
               outputNode.data.condition == "mayor" && n1 > n2
@@ -111,7 +111,7 @@ export default {
             var n1 = 0;
             var n2 = 0;
 
-            if (output.output == "input_1") {
+            if (input_class == "input_1") {
               n1 = node.data.number;
               n2 = outputNode.data.n2;
             } else {
@@ -130,10 +130,10 @@ export default {
             };
           }
 
-          this.df.updateNodeDataFromId(input.id, data);
+          this.df.updateNodeDataFromId(outputNode.id, data);
 
           const nodeIndex = this.drawflowStore.nodes.findIndex(
-            (n) => n.id == input.id
+            (n) => n.id == outputNode.id
           );
           this.drawflowStore.$patch((state) => {
             state.nodes[nodeIndex].data = data;

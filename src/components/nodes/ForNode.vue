@@ -16,6 +16,9 @@
 </template>
 
 <script>
+import { getCurrentInstance } from "vue";
+import { useDrawflowStore } from "../../stores/drawflow";
+
 export default {
   data() {
     return {
@@ -26,7 +29,7 @@ export default {
   },
   watch: {
     "node.data": function (newData, oldData) {
-      console.log("Changing Data of If Node : " + this.id);
+      console.log("Changing Data of For Node : " + this.id);
       //console.log(this.df.getNodeFromId(this.id));
 
       const assignNode = this.df.getNodeFromId(this.id);
@@ -112,6 +115,7 @@ export default {
   methods: {
     onChange(event) {
       const node = this.df.getNodeFromId(this.id);
+      console.log("CHANGING FOR");
       console.log(node);
 
       const n1 = parseInt(node.data.n1);
@@ -144,7 +148,7 @@ export default {
 
           for (var j = 0; j < repeat; j++) {
             if (input.name == "Suma") {
-              if (i == 0) {
+              if (j == 0) {
                 result = n1 + n2;
                 n2Alt = n2;
               } else {
@@ -152,7 +156,7 @@ export default {
                 n2Alt += n2;
               }
             } else if (input.name == "Resta") {
-              if (i == 0) {
+              if (j == 0) {
                 result = n1 - n2;
                 n2Alt = n2;
               } else {
@@ -160,7 +164,7 @@ export default {
                 n2Alt += n2;
               }
             } else if (input.name == "Multiplicacion") {
-              if (i == 0) {
+              if (j == 0) {
                 result = n1 * n2;
                 n2Alt = n2;
               } else {
@@ -168,7 +172,7 @@ export default {
                 n2Alt *= n2;
               }
             } else if (input.name == "Division") {
-              if (i == 0) {
+              if (j == 0) {
                 result = n1 / n2;
                 n2Alt = n2;
               } else {

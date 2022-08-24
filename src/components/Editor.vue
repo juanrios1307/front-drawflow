@@ -180,7 +180,7 @@ export default {
             pos_x,
             pos_y,
             "number node",
-            { number: 10 },
+            { number: 10, code: "" },
             name,
             "vue"
           );
@@ -195,7 +195,7 @@ export default {
             pos_x,
             pos_y,
             "sum node",
-            { n1: 0, n2: 0, result: 0 },
+            { n1: 0, n2: 0, result: 0, code: "" },
             name,
             "vue"
           );
@@ -208,7 +208,7 @@ export default {
             pos_x,
             pos_y,
             "rest node",
-            { n1: 0, n2: 0, result: 0 },
+            { n1: 0, n2: 0, result: 0, code: "" },
             name,
             "vue"
           );
@@ -221,7 +221,7 @@ export default {
             pos_x,
             pos_y,
             "mult node",
-            { n1: 1, n2: 1, result: 1 },
+            { n1: 1, n2: 1, result: 1, code: "" },
             name,
             "vue"
           );
@@ -234,7 +234,7 @@ export default {
             pos_x,
             pos_y,
             "div node",
-            { n1: 1, n2: 1, result: 1 },
+            { n1: 1, n2: 1, result: 1, code: "" },
             name,
             "vue"
           );
@@ -247,7 +247,7 @@ export default {
             pos_x,
             pos_y,
             "if node",
-            { n1: 0, n2: 0, condition: "mayor", isTrue: false },
+            { n1: 0, n2: 0, condition: "mayor", isTrue: false, code: "" },
             name,
             "vue"
           );
@@ -260,7 +260,7 @@ export default {
             pos_x,
             pos_y,
             "for node",
-            { n1: 0, n2: 1, repeat: 1 },
+            { n1: 0, n2: 1, repeat: 1, code: "" },
             name,
             "vue"
           );
@@ -273,7 +273,7 @@ export default {
             pos_x,
             pos_y,
             "asignar node",
-            { number: 0 },
+            { number: 0, code: "" },
             name,
             "vue"
           );
@@ -497,38 +497,73 @@ export default {
           ) {
             var n1 = 0;
             var n2 = 0;
+            var code = "";
             if (input_class == "input_1") {
               n1 =
                 output.name == "Numero" || output.name == "Asignar"
                   ? output.data.number
                   : output.data.result;
               n2 = input.data.n2;
+
+              var input2 =
+                input.inputs.input_2.connections > 0
+                  ? "var_" + input.inputs.input_2.connections[0].node
+                  : 0;
+
+              code =
+                "" +
+                input.name +
+                "_" +
+                input.id +
+                "= var_" +
+                output.id +
+                " + " +
+                input2;
             } else {
               n1 = input.data.n1;
               n2 =
                 output.name == "Numero" || output.name == "Asignar"
                   ? output.data.number
                   : output.data.result;
+
+              var input1 =
+                input.inputs.input_1.connections > 0
+                  ? "var_" + input.inputs.input_1.connections[0].node
+                  : 0;
+
+              code =
+                "" +
+                input.name +
+                "_" +
+                input.id +
+                " = " +
+                input1 +
+                " + " +
+                "var_" +
+                output.id;
             }
 
             n1 = parseInt(n1);
-            n2 = parseint(n2);
+            n2 = parseInt(n2);
 
             const result =
-              outputNode.name == "Suma"
+              input.name == "Suma"
                 ? n1 + n2
-                : outputNode.name == "Resta"
+                : input.name == "Resta"
                 ? n1 - n2
-                : outputNode.name == "Multiplicacion"
+                : input.name == "Multiplicacion"
                 ? n1 * n2
-                : outputNode.name == "Division"
+                : input.name == "Division"
                 ? n1 / n2
                 : 0;
+
+            code += result;
 
             data = {
               n1: parseInt(n1),
               n2: parseInt(n2),
               result: result,
+              code: code,
             };
           } else if (input.name == "If") {
             var n1 = 0;
@@ -548,7 +583,7 @@ export default {
             }
 
             n1 = parseInt(n1);
-            n2 = parseint(n2);
+            n2 = parseInt(n2);
 
             const isTrue =
               input.data.condition == "mayor" && n1 > n2
@@ -595,6 +630,9 @@ export default {
               ),
             };
           }
+
+          console.log("DATA CREATED");
+          console.log(data);
 
           df.value.updateNodeDataFromId(input.id, data);
 
