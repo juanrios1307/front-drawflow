@@ -5,24 +5,26 @@
         <Editor />
       </div>
       <div class="col-4" id="python">
+        <h4>Python Code</h4>
         <Python />
       </div>
       <div class="col-2" id="api">
         <h4>Operaciones Backend</h4>
+        <Operations />
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import Menu from "./Menu.vue";
 import Editor from "./Editor.vue";
 import Python from "./Python.vue";
+import Operations from "./Operations.vue";
 
 export default {
   name: "draw-flow",
 
-  components: { Menu, Editor, Python },
+  components: { Editor, Python, Operations },
 };
 </script>
 
