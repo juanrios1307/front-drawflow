@@ -45,6 +45,7 @@ import Division from "./nodes/DividirNode.vue";
 import If from "./nodes/IfNode.vue";
 import For from "./nodes/ForNode.vue";
 import Asignar from "./nodes/AsignarNode.vue";
+import Imprimir from "./nodes/ImprimirNode.vue";
 
 export default {
   name: "editor-draw-flow",
@@ -127,6 +128,14 @@ export default {
           input: 0,
           output: 1,
         },
+        {
+          ID: 9,
+          type: "Imprimir",
+          name: "Imprimir",
+          item: "Imprimir",
+          input: 1,
+          output: 0,
+        },
       ],
     };
   },
@@ -184,6 +193,9 @@ export default {
           break;
         case "a":
           name = "Asignar";
+          break;
+        case "p":
+          name = "Imprimir";
           break;
       }
 
@@ -312,6 +324,20 @@ export default {
             name,
             "vue"
           );
+          break;
+        case "Imprimir":
+          df.value.addNode(
+            name,
+            1,
+            0,
+            pos_x,
+            pos_y,
+            "imprimir node",
+            { number: 0 },
+            name,
+            "vue"
+          );
+          break;
       }
     };
 
@@ -336,6 +362,7 @@ export default {
       df.value.registerNode("If", If, {}, {});
       df.value.registerNode("For", For, {}, {});
       df.value.registerNode("Asignar", Asignar, {}, {});
+      df.value.registerNode("Imprimir", Imprimir, {}, {});
 
       df.reroute = true;
 
@@ -378,6 +405,8 @@ export default {
           code = ["for i in range (", node.data.repeat, "):"];
         } else if (node.name == "Asignar") {
           code = [node.name + "_" + id, " = ", node.data.number];
+        } else if (node.name == "Imprimir") {
+          code = ["print(", 0, ")"];
         }
 
         drawflowStore.$patch((state) => {
@@ -466,11 +495,14 @@ export default {
           (input_class == "input_2" &&
             input.inputs.input_2.connections.length > 1) ||
           (output.name == "If" &&
-            (input.name == "If" || input.name == "Asignar")) ||
+            (input.name == "If" ||
+              input.name == "Asignar" ||
+              input.name == "Imprimir")) ||
           (output.name == "For" &&
             (input.name == "Asignar" ||
               input.name == "For" ||
-              input.name == "If"))
+              input.name == "If" ||
+              input.name == "Imprimir"))
         ) {
           df.value.removeSingleConnection(
             connection.output_id,
@@ -1048,6 +1080,26 @@ export default {
             };
 
             codeInput[2] = output.name + "_" + output.id;
+          } else if (input.name == "Imprimir") {
+            const codeIndexInputNode = drawflowStore.code.findIndex(
+              (n) => n.id == input.id
+            );
+
+            const codeIndexOutputNode = drawflowStore.code.findIndex(
+              (n) => n.id == output.id
+            );
+
+            if (codeIndexInputNode < codeIndexOutputNode) {
+              const codeOp = drawflowStore.code;
+
+              codeOp.splice(codeIndexInputNode, 0, codeOutput);
+              codeOp.splice(codeIndexOutputNode + 1, 1);
+
+              drawflowStore.$patch((state) => {
+                state.code = codeOp;
+              });
+            }
+            codeInput[1] = output.name + "_" + output.id;
           }
 
           df.value.updateNodeDataFromId(input.id, data);
