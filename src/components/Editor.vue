@@ -333,7 +333,7 @@ export default {
             pos_x,
             pos_y,
             "imprimir node",
-            { number: 0 },
+            { var: "" },
             name,
             "vue"
           );
@@ -1099,6 +1099,11 @@ export default {
                 state.code = codeOp;
               });
             }
+
+            data = {
+              var: output.name + "_" + output.id,
+            };
+
             codeInput[1] = output.name + "_" + output.id;
           }
 

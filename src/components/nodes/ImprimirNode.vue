@@ -2,6 +2,9 @@
   <div class="node1">
     <div class="title-box">Print Variable</div>
     <div>Variable ID : {{ id }}</div>
+    <div class="box">
+      <input df-var disabled />
+    </div>
   </div>
 </template>
 
@@ -24,6 +27,15 @@ export default {
     console.log(df.nodeId);
     this.id = df.nodeId;
     this.df = df;
+  },
+  updated() {
+    this.node = this.drawflowStore.getNodeById(this.id);
+  },
+  setup() {
+    const drawflowStore = useDrawflowStore();
+    return {
+      drawflowStore,
+    };
   },
 };
 </script>
