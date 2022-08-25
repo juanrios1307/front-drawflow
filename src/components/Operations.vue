@@ -6,7 +6,7 @@
         <div class="programList">
           <ul class="list-group list-group-flush">
             <li
-              class="list-group-item a"
+              class="list-group-item"
               v-for="n in listPrograms"
               :key="n.name"
               :data-node="n.name"
@@ -148,5 +148,9 @@ export default {
 
 .btn {
   border-radius: 125px;
+}
+
+.list-group-item {
+  padding: 10px;
 }
 </style>
