@@ -1,5 +1,5 @@
 :root {
-  --dfBackgroundColor: rgba(232, 229, 229, 1);
+  --dfBackgroundColor: #f8f8f8;
   --dfBackgroundSize: 0px;
   --dfBackgroundImage: none;
 
@@ -9,7 +9,7 @@
   --dfNodeTextColor: #000000;
   --dfNodeBorderSize: 2px;
   --dfNodeBorderColor: #000000;
-  --dfNodeBorderRadius: 4px;
+  --dfNodeBorderRadius: 25px !important;
   --dfNodeMinHeight: 40px;
   --dfNodeMinWidth: 160px;
   --dfNodePaddingTop: 15px;
@@ -24,7 +24,7 @@
   --dfNodeHoverTextColor: #000000;
   --dfNodeHoverBorderSize: 2px;
   --dfNodeHoverBorderColor: #000000;
-  --dfNodeHoverBorderRadius: 4px;
+  --dfNodeHoverBorderRadius: 25px;
 
   --dfNodeHoverBoxShadowHL: 0px;
   --dfNodeHoverBoxShadowVL: 2px;
@@ -36,7 +36,7 @@
   --dfNodeSelectedTextColor: #ffffff;
   --dfNodeSelectedBorderSize: 2px;
   --dfNodeSelectedBorderColor: #000000;
-  --dfNodeSelectedBorderRadius: 4px;
+  --dfNodeSelectedBorderRadius: 25px;
 
   --dfNodeSelectedBoxShadowHL: 0px;
   --dfNodeSelectedBoxShadowVL: 2px;
@@ -109,7 +109,7 @@
   background: var(--dfNodeBackgroundColor) !important;
   color: var(--dfNodeTextColor);
   border: var(--dfNodeBorderSize) solid var(--dfNodeBorderColor);
-  border-radius: var(--dfNodeBorderRadius);
+  border-radius: var(--dfNodeBorderRadius) !important;
   min-height: var(--dfNodeMinHeight);
   width: auto;
   min-width: var(--dfNodeMinWidth);

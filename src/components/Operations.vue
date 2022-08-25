@@ -2,7 +2,7 @@
   <div id="actions">
     <div class="row list">
       <div class="col">
-        <h4>Lista De Programas</h4>
+        <h5>Lista De Programas</h5>
         <div class="programList">
           <ul class="list-group list-group-flush">
             <li
@@ -24,7 +24,7 @@
                     <div class="col">
                       <button
                         type="button"
-                        class="btn btn-primary"
+                        class="btn btn-success"
                         @click="open"
                       >
                         Ver
@@ -41,7 +41,7 @@
     <div class="row">
       <button
         type="button"
-        class="btn btn-primary btn-lg btn-block"
+        class="btn btn-success btn-lg btn-block"
         @click="list"
       >
         Listar Programas
@@ -49,13 +49,13 @@
 
       <button
         type="button"
-        class="btn btn-primary btn-lg btn-block"
+        class="btn btn-success btn-lg btn-block"
         @click="save"
       >
         Guardar Programa
       </button>
 
-      <button type="button" class="btn btn-primary btn-lg btn-block">
+      <button type="button" class="btn btn-success btn-lg btn-block">
         Abrir Programa
       </button>
     </div>
@@ -138,12 +138,15 @@ export default {
 <style>
 .list {
   height: 60vh;
-
   margin-bottom: 10px;
 }
 
 .programList {
   height: 50vh;
   overflow: scroll;
+}
+
+.btn {
+  border-radius: 125px;
 }
 </style>

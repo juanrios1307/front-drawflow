@@ -1030,20 +1030,12 @@ export default {
 </script>
 
 <style scoped>
-#drag .node1 {
-  border-radius: 10px;
-  border: 1px solid #ccc;
-  height: 60px;
-  text-align: center;
-  cursor: move;
-}
-
 #drawflow {
   width: calc(100%);
-  height: calc(100% - 40px);
+  height: calc(100% - 60px);
   text-align: initial;
-  background: #ecf1f0;
   background-size: 20px 20px;
+  border-radius: 10px;
 }
 
 h4 {
@@ -1056,6 +1048,7 @@ h4 {
 .card {
   text-align: center;
   height: 40px;
+  border-radius: 25px;
 }
 .card-body {
   padding: 5px;

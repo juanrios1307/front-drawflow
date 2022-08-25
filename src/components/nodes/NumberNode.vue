@@ -162,6 +162,7 @@ export default {
 <style>
 .node1 {
   text-align: center;
+  border-radius: 25px;
 }
 
 input {

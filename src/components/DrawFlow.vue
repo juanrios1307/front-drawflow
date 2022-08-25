@@ -45,8 +45,4 @@ h4 {
   padding: 10px;
   font-weight: bold;
 }
-
-.col {
-  padding: 10px;
-}
 </style>

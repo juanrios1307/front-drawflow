@@ -1,11 +1,10 @@
 <template>
-  <div class="col" id="drag">
+  <div class="col python" id="drag">
     <ul class="list-group list-group-flush">
       <li
-        class="list-group-item a"
+        class="list-group-item itemCode"
         v-for="n in drawflowStore.code"
         :key="n.id"
-        draggable="true"
       >
         <div class="a">
           <code style="color: #17202a">
@@ -35,3 +34,15 @@ export default {
   },
 };
 </script>
+
+<style>
+.python {
+  height: calc(100vh - 60px);
+  overflow: scroll;
+}
+
+.itemCode {
+  height: 45px;
+  padding: 5px;
+}
+</style>
