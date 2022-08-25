@@ -607,6 +607,20 @@ export default {
               n2: n2Alt,
               result: result,
             };
+
+            var inputsOfOutput =
+              output.inputs.input_1.connections.length > 0
+                ? output.inputs.input_1.connections
+                : false;
+
+            if (inputsOfOutput != false) {
+              console.log(inputsOfOutput);
+              inputsOfOutput = df.value.getNodeFromId(inputsOfOutput[0].node);
+
+              if (inputsOfOutput.name == "If") {
+                codeInput[0] = TAB + codeInput[0];
+              }
+            }
           } else if (
             input.name == "Suma" ||
             input.name == "Resta" ||
