@@ -18,7 +18,7 @@
       </ul>
     </div>
 
-    <div class="col-8" id="editor">
+    <div class="col-8" id="editor" v-on:keyup="keyPress">
       <h4>Editor</h4>
       <div
         id="drawflow"
@@ -153,6 +153,41 @@ export default {
 
     const allowDrop = (event) => {
       event.preventDefault();
+    };
+
+    const keyPress = (event) => {
+      console.log(event.key);
+
+      var name = "";
+
+      switch (event.key) {
+        case "n":
+          name = "Numero";
+          break;
+        case "s":
+          name = "Suma";
+          break;
+        case "r":
+          name = "Resta";
+          break;
+        case "m":
+          name = "Multiplicacion";
+          break;
+        case "d":
+          name = "Division";
+          break;
+        case "i":
+          name = "If";
+          break;
+        case "f":
+          name = "For";
+          break;
+        case "a":
+          name = "Asignar";
+          break;
+      }
+
+      addNodeToDrawFlow(name, event.clientX, event.clientY);
     };
 
     const addNodeToDrawFlow = (name, pos_x, pos_y) => {
@@ -420,6 +455,7 @@ export default {
 
         //Obtener código input
         var codeInput = drawflowStore.getLineCodeById(input.id).code;
+        var codeOutput = drawflowStore.getLineCodeById(output.id);
         var aux = {};
 
         //Codigo para realizar operaciones de los nodos
@@ -452,6 +488,30 @@ export default {
               input.id,
               input_class == "input_1" ? "input_2" : "input_1"
             );
+
+            const codeIndexOutputNode = drawflowStore.code.findIndex(
+              (n) => n.id == output.id
+            );
+
+            const codeIndexInputNode = drawflowStore.code.findIndex(
+              (n) => n.id == input.id
+            );
+
+            const codeInputOp = drawflowStore.getLineCodeById(input.id);
+
+            const codeOp = drawflowStore.code;
+
+            codeOp.splice(codeIndexOutputNode + 1, 0, codeInputOp);
+
+            if (codeIndexInputNode > codeIndexOutputNode) {
+              codeOp.splice(codeIndexInputNode + 1, 1);
+            } else {
+              codeOp.splice(codeIndexInputNode, 1);
+            }
+
+            drawflowStore.$patch((state) => {
+              state.code = codeOp;
+            });
 
             var vars = drawflowStore.getLineCodeById(output.id).aux;
             const TAB = "\t";
@@ -509,6 +569,30 @@ export default {
               input_class == "input_1" ? "input_2" : "input_1"
             );
 
+            const codeIndexOutputNode = drawflowStore.code.findIndex(
+              (n) => n.id == output.id
+            );
+
+            const codeIndexInputNode = drawflowStore.code.findIndex(
+              (n) => n.id == input.id
+            );
+
+            const codeInputOp = drawflowStore.getLineCodeById(input.id);
+
+            const codeOp = drawflowStore.code;
+
+            codeOp.splice(codeIndexOutputNode + 1, 0, codeInputOp);
+
+            if (codeIndexInputNode > codeIndexOutputNode) {
+              codeOp.splice(codeIndexInputNode + 1, 1);
+            } else {
+              codeOp.splice(codeIndexInputNode, 1);
+            }
+
+            drawflowStore.$patch((state) => {
+              state.code = codeOp;
+            });
+
             if (output.data.isTrue) {
               console.log("true");
               const result =
@@ -558,6 +642,30 @@ export default {
               input.id,
               input_class == "input_1" ? "input_2" : "input_1"
             );
+
+            const codeIndexOutputNode = drawflowStore.code.findIndex(
+              (n) => n.id == output.id
+            );
+
+            const codeIndexInputNode = drawflowStore.code.findIndex(
+              (n) => n.id == input.id
+            );
+
+            const codeInputOp = drawflowStore.getLineCodeById(input.id);
+
+            const codeOp = drawflowStore.code;
+
+            codeOp.splice(codeIndexOutputNode + 1, 0, codeInputOp);
+
+            if (codeIndexInputNode > codeIndexOutputNode) {
+              codeOp.splice(codeIndexInputNode + 1, 1);
+            } else {
+              codeOp.splice(codeIndexInputNode, 1);
+            }
+
+            drawflowStore.$patch((state) => {
+              state.code = codeOp;
+            });
 
             for (var i = 0; i < output.data.repeat; i++) {
               if (input.name == "Suma") {
@@ -630,6 +738,25 @@ export default {
             var n1 = 0;
             var n2 = 0;
 
+            const codeIndexInputNode = drawflowStore.code.findIndex(
+              (n) => n.id == input.id
+            );
+
+            const codeIndexOutputNode = drawflowStore.code.findIndex(
+              (n) => n.id == output.id
+            );
+
+            if (codeIndexInputNode < codeIndexOutputNode) {
+              const codeOp = drawflowStore.code;
+
+              codeOp.splice(codeIndexInputNode, 0, codeOutput);
+              codeOp.splice(codeIndexOutputNode + 1, 1);
+
+              drawflowStore.$patch((state) => {
+                state.code = codeOp;
+              });
+            }
+
             if (input_class == "input_1") {
               n1 =
                 output.name == "Numero" || output.name == "Asignar"
@@ -671,6 +798,25 @@ export default {
             var n1 = 0;
             var n2 = 0;
             var vars = drawflowStore.getLineCodeById(input.id).aux;
+
+            const codeIndexInputNode = drawflowStore.code.findIndex(
+              (n) => n.id == input.id
+            );
+
+            const codeIndexOutputNode = drawflowStore.code.findIndex(
+              (n) => n.id == output.id
+            );
+
+            if (codeIndexInputNode < codeIndexOutputNode) {
+              const codeOp = drawflowStore.code;
+
+              codeOp.splice(codeIndexInputNode, 0, codeOutput);
+              codeOp.splice(codeIndexOutputNode + 1, 1);
+
+              drawflowStore.$patch((state) => {
+                state.code = codeOp;
+              });
+            }
 
             if (input_class == "input_1") {
               n1 =
@@ -795,6 +941,25 @@ export default {
             var var2 = 0;
             var vars = drawflowStore.getLineCodeById(input.id).aux;
 
+            const codeIndexInputNode = drawflowStore.code.findIndex(
+              (n) => n.id == input.id
+            );
+
+            const codeIndexOutputNode = drawflowStore.code.findIndex(
+              (n) => n.id == output.id
+            );
+
+            if (codeIndexInputNode < codeIndexOutputNode) {
+              const codeOp = drawflowStore.code;
+
+              codeOp.splice(codeIndexInputNode, 0, codeOutput);
+              codeOp.splice(codeIndexOutputNode + 1, 1);
+
+              drawflowStore.$patch((state) => {
+                state.code = codeOp;
+              });
+            }
+
             if (input_class == "input_1") {
               n1 =
                 output.name == "Numero" || output.name == "Asignar"
@@ -855,6 +1020,25 @@ export default {
               }
             }
           } else if (input.name == "Asignar") {
+            const codeIndexInputNode = drawflowStore.code.findIndex(
+              (n) => n.id == input.id
+            );
+
+            const codeIndexOutputNode = drawflowStore.code.findIndex(
+              (n) => n.id == output.id
+            );
+
+            if (codeIndexInputNode < codeIndexOutputNode) {
+              const codeOp = drawflowStore.code;
+
+              codeOp.splice(codeIndexInputNode, 0, codeOutput);
+              codeOp.splice(codeIndexOutputNode + 1, 1);
+
+              drawflowStore.$patch((state) => {
+                state.code = codeOp;
+              });
+            }
+
             data = {
               number: parseInt(
                 output.name == "Numero" || output.name == "Asignar"
@@ -1032,6 +1216,7 @@ export default {
       drop,
       allowDrop,
       internalInstance,
+      keyPress,
     };
   },
   methods: {
