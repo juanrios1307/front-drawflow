@@ -8,23 +8,24 @@
             <li
               class="list-group-item"
               v-for="n in listPrograms"
-              :key="n.name"
-              :data-node="n.name"
+              :key="n.uid"
+              :data-node="n.uid"
             >
               <div class="card">
-                <div class="card-header">{{ n.name }}</div>
+                <div class="card-header">{{ n.uid }}</div>
                 <div class="card-body">
                   <div class="row">
                     <div class="col">
-                      <p class="card-title">{{ n.date }}</p>
+                      <p class="card-title">{{ n.uid }}</p>
                       <p class="card-text">
-                        {{ n.nodos }}
+                        {{ n.uid }}
                       </p>
                     </div>
                     <div class="col">
                       <button
                         type="button"
                         class="btn btn-success"
+                        :key="n.uid"
                         @click="open"
                       >
                         Ver
@@ -65,6 +66,7 @@
 <script>
 import { getCurrentInstance } from "vue";
 import { useDrawflowStore } from "../stores/drawflow";
+import axios from "axios";
 
 export default {
   name: "operations",
@@ -73,7 +75,7 @@ export default {
     return {
       id: "",
       df: "",
-      listPrograms: "",
+      listPrograms: [],
     };
   },
   mounted() {
@@ -93,41 +95,52 @@ export default {
   },
   methods: {
     save(event) {
-      console.log(this.df.export());
+      console.log(JSON.stringify(this.df.export()));
+
+      var data = JSON.stringify({"Code":JSON.stringify(this.df.export()),"Uid":"12"});
+      var config = {
+        method: 'post',
+        url: 'http://localhost:9000/',
+        headers: { 
+          'Content-Type': 'application/json'
+        },
+        data : data
+      };
+
+      axios(config)
+      .then(function (response) {
+        console.log(JSON.stringify(response.data));
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+
     },
 
-    list(event) {
-      this.listPrograms = [
-        {
-          name: "Suma",
-          date: "hoy",
-          nodos: "3",
-        },
-        {
-          name: "Resta",
-          date: "hoy",
-          nodos: "3",
-        },
-        {
-          name: "Multiplicacion",
-          date: "hoy",
-          nodos: "3",
-        },
-        {
-          name: "For",
-          date: "hoy",
-          nodos: "3",
-        },
-        {
-          name: "If",
-          date: "hoy",
-          nodos: "3",
-        },
-      ];
+    async list(event) {
+
+      var config = {
+        method: 'get',
+        url: 'http://localhost:9000/',
+        headers: { }
+      };
+
+      const response = await axios(config)
+      this.listPrograms = response.data.getAll
+      console.log(this.listPrograms)
+     
     },
 
     open(event) {
-      const data = {};
+      
+      console.log(event.target.__vnode.key)
+
+      const key = event.target.__vnode.key
+
+      const program = this.listPrograms.find((line) => line.uid == key);
+
+      const data = JSON.parse(program.Code);
+      console.log(data)
 
       this.df.import(data);
     },
