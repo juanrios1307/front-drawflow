@@ -24,8 +24,7 @@ export default {
     let df = null;
     df = getCurrentInstance().appContext.config.globalProperties.$df.value;
 
-    console.log(df.nodeId);
-    this.id = df.nodeId;
+     this.id = df!=undefined?df.nodeId:"";
     this.df = df;
   },
   updated() {

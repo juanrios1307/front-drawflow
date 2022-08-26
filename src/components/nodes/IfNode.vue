@@ -118,7 +118,7 @@ export default {
   mounted() {
     let df = null;
     df = getCurrentInstance().appContext.config.globalProperties.$df.value;
-    this.id = df.nodeId;
+     this.id = df!=undefined?df.nodeId:"";
     this.df = df;
   },
 

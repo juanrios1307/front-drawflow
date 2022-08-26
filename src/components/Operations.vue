@@ -95,9 +95,24 @@ export default {
   },
   methods: {
     save(event) {
-      console.log(JSON.stringify(this.df.export()));
+      
+      console.log(this.drawflowStore.getCode)
+      var code = JSON.parse ( JSON.stringify ( this.drawflowStore.getCode) )
+      console.log(code)
 
-      var data = JSON.stringify({"Code":JSON.stringify(this.df.export()),"Uid":"12"});
+      for(var i = 0; i<code.length; i++){
+        code[i]="".concat(...code[i].code)
+      }
+
+      console.log(code)
+
+      var data = {
+        "CodePython":code,
+        "Code":JSON.stringify(this.df.export())
+      }
+      console.log(data)
+
+
       var config = {
         method: 'post',
         url: 'http://localhost:9000/',
@@ -141,6 +156,10 @@ export default {
 
       const data = JSON.parse(program.Code);
       console.log(data)
+
+      /*drawflowStore.$patch((state) => {
+              state.code = program.code;
+            });*/
 
       this.df.import(data);
     },
