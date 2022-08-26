@@ -16,9 +16,9 @@
                 <div class="card-body">
                   <div class="row">
                     <div class="col">
-                      <p class="card-title">{{ n.uid }}</p>
+                      <p class="card-title">Nodos :{{ Object.values(n.drawflow.Home.data).length }}</p>
                       <p class="card-text">
-                        {{ n.uid }}
+                        Nodo 1 : {{ n.drawflow.Home.data['1'].name }}
                       </p>
                     </div>
                     <div class="col">
@@ -110,6 +110,9 @@ export default {
         "CodePython":code,
         "Code":JSON.stringify(this.df.export())
       }
+
+      console.log(this.df.export())
+      console.log(Object.values(this.df.export().drawflow.Home.data).length)
       console.log(data)
 
 
