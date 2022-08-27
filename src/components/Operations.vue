@@ -12,16 +12,12 @@
               :data-node="n.uid"
             >
               <div class="card">
-                <div class="card-header">{{ n.uid }}</div>
                 <div class="card-body">
                   <div class="row">
-                    <div class="col">
-                      <p class="card-title">Nodos :{{n.nl}}</p>
-                      <p class="card-text">
-                        Nodo 1 : {{n.fn}}
-                      </p>
+                    <div class="col-6">
+                      <p class="card-title">{{n.uid.substring(2)}}</p>
                     </div>
-                    <div class="col">
+                    <div class="col-6">
                       <button
                         type="button"
                         class="btn btn-success"
@@ -57,7 +53,7 @@
       </button>
 
       <button type="button" class="btn btn-success btn-lg btn-block">
-        Abrir Programa
+        Ejecutar Programa
       </button>
     </div>
   </div>
@@ -76,7 +72,6 @@ export default {
     return {
       id: "",
       df: "",
-      listPrograms: [],
     };
   },
   mounted() {
@@ -86,6 +81,8 @@ export default {
     console.log(df.nodeId);
     this.id = df.nodeId;
     this.df = df;
+
+    this.list()
   },
   setup() {
     const drawflowStore = useDrawflowStore();
@@ -95,32 +92,20 @@ export default {
     };
   },
   methods: {
-    save(event) {
+    async save(event) {
       
       console.log(this.drawflowStore.getCode)
       var code = JSON.parse ( JSON.stringify ( this.drawflowStore.getCode) )
 
-      console.log("CODIGO STORE")
-      console.log(this.drawflowStore.getCode)
-
-      console.log("Codigo PARSEADO JSON")
-      console.log(code)
-
       for(var i = 0; i<code.length; i++){
-        code[i]="".concat(...code[i].code)
+        code[i]=String(i).concat(...code[i].code)
       }
 
-      console.log("CODIGO Convertido")
-      console.log(code)
 
       var data = {
         "CodePython":code,
         "Code":JSON.stringify(this.df.export())
       }
-
-      console.log("DATA a GUARDAR")
-      console.log(data)
-
 
       var config = {
         method: 'post',
@@ -131,17 +116,15 @@ export default {
         data : data
       };
 
-      axios(config)
-      .then(function (response) {
-        console.log(JSON.stringify(response.statusText));
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
+      const response = await axios(config)
 
+      if(response.statusText == "OK"){
+          alert("Programa Guardado")
+          this.list()
+        }
     },
 
-    async list(event) {
+    async list() {
 
       var config = {
         method: 'get',
@@ -153,21 +136,18 @@ export default {
       const data = response.data.getAll
       console.log(data)
 
+      this.drawflowStore.programs= [];
+
       for(var i=0;i<data.length;i++){
         const uid = data[i].uid
         const df = JSON.parse(data[i].Code)
         const pythonCode = data[i].CodePython
-
-        const nl = Object.values(df.drawflow.Home.data).length
-        const fn = df.drawflow.Home.data['1'].name
 
         this.drawflowStore.$patch((state) => {
           state.programs.push({
             uid:uid,
             df:df,
             pythonCode:pythonCode,
-            nl : nl ,
-            fn : fn ,
           });
         });
 
@@ -204,16 +184,33 @@ export default {
       console.log(program)
 
       var pythonCode = program.CodePython
+      var id =[]
 
       for(var i =0; i<pythonCode.length; i++){
-        pythonCode[i]={code:pythonCode[i]}
+        id[i] = pythonCode[i].substring(0,1)
+        pythonCode[i]={
+          id: pythonCode[i].substring(0,1),
+          code:pythonCode[i].substring(1,pythonCode[i].length)
+          }
       }
+
+      pythonCode.sort(function (a, b) {
+        if (a.id > b.id) {
+          return 1;
+        }
+        if (a.id < b.id) {
+          return -1;
+        }
+        // a must be equal to b
+        return 0;
+      });
 
       this.drawflowStore.$patch((state) => {
               state.code = pythonCode;
             });
 
-      
+      console.log(this.drawflowStore.code)
+
       this.df.import(data1);
       this.df.editor_mode = 'fixed'
     },
