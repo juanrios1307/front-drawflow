@@ -157,7 +157,11 @@ export default {
     const drop = (event) => {
       event.preventDefault();
       const data = event.dataTransfer.getData("node");
-      addNodeToDrawFlow(data, event.clientX, event.clientY);
+      
+      if(df.value.editor_mode == "edit"){
+          addNodeToDrawFlow(data, event.clientX, event.clientY);
+      }
+      
     };
 
     const allowDrop = (event) => {
@@ -198,8 +202,11 @@ export default {
           name = "Imprimir";
           break;
       }
-
-      addNodeToDrawFlow(name, event.clientX, event.clientY);
+      
+      if(df.value.editor_mode == "edit"){
+          addNodeToDrawFlow(name, event.clientX, event.clientY);
+      }
+    
     };
 
     const addNodeToDrawFlow = (name, pos_x, pos_y) => {
