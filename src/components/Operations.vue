@@ -7,7 +7,7 @@
           <ul class="list-group list-group-flush">
             <li
               class="list-group-item"
-              v-for="n in listPrograms"
+              v-for="n in drawflowStore.programs"
               :key="n.uid"
               :data-node="n.uid"
             >
@@ -16,9 +16,9 @@
                 <div class="card-body">
                   <div class="row">
                     <div class="col">
-                      <p class="card-title">Nodos :{{n.drawflow? Object.values(n.drawflow.Home.data).length :0}}</p>
+                      <p class="card-title">Nodos :{{n.nl}}</p>
                       <p class="card-text">
-                        Nodo 1 : {{n.drawflow?  n.drawflow.Home.data['1'].name :""}}
+                        Nodo 1 : {{n.fn}}
                       </p>
                     </div>
                     <div class="col">
@@ -67,6 +67,7 @@
 import { getCurrentInstance } from "vue";
 import { useDrawflowStore } from "../stores/drawflow";
 import axios from "axios";
+import { nullLiteral } from "@babel/types";
 
 export default {
   name: "operations",
@@ -144,8 +145,30 @@ export default {
       };
 
       const response = await axios(config)
-      this.listPrograms = response.data.getAll
-      console.log(this.listPrograms)
+      const data = response.data.getAll
+      console.log(data)
+
+      for(var i=0;i<data.length;i++){
+        const uid = data[i].uid
+        const df = JSON.parse(data[i].Code)
+        const pythonCode = data[i].CodePython
+
+        const nl = Object.values(df.drawflow.Home.data).length
+        const fn = df.drawflow.Home.data['1'].name
+
+        this.drawflowStore.$patch((state) => {
+          state.programs.push({
+            uid:uid,
+            df:df,
+            pythonCode:pythonCode,
+            nodesLength : nl ,
+            firstNode : fn ,
+          });
+        });
+
+      }
+
+      console.log(this.drawflowStore.programs)
      
     },
 

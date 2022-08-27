@@ -6,6 +6,7 @@ export const useDrawflowStore = defineStore({
     counter: 0,
     nodes: [],
     code: [],
+    programs : [],
   }),
   getters: {
     doubleCount: (state) => state.counter * 2,
@@ -20,6 +21,12 @@ export const useDrawflowStore = defineStore({
     },
     getLineCodeById: (state) => {
       return (id) => state.code.find((line) => line.id == id);
+    },
+    getPrograms(state) {
+      return state.programs;
+    },
+    getProgramById: (state) => {
+      return (uid) => state.programs.find((program) => program.uid == uid);
     },
   },
   actions: {
