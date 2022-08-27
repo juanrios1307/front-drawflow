@@ -99,12 +99,18 @@ export default {
       
       console.log(this.drawflowStore.getCode)
       var code = JSON.parse ( JSON.stringify ( this.drawflowStore.getCode) )
+
+      console.log("CODIGO STORE")
+      console.log(this.drawflowStore.getCode)
+
+      console.log("Codigo PARSEADO JSON")
       console.log(code)
 
       for(var i = 0; i<code.length; i++){
         code[i]="".concat(...code[i].code)
       }
 
+      console.log("CODIGO Convertido")
       console.log(code)
 
       var data = {
@@ -112,8 +118,7 @@ export default {
         "Code":JSON.stringify(this.df.export())
       }
 
-      console.log(this.df.export())
-      console.log(Object.values(this.df.export().drawflow.Home.data).length)
+      console.log("DATA a GUARDAR")
       console.log(data)
 
 
@@ -128,7 +133,7 @@ export default {
 
       axios(config)
       .then(function (response) {
-        console.log(JSON.stringify(response.data));
+        console.log(JSON.stringify(response.statusText));
       })
       .catch(function (error) {
         console.log(error);
@@ -196,7 +201,7 @@ export default {
       //const program = this.listPrograms.find((line) => line.uid == key);
 
       const data1 = JSON.parse(program.Code);
-      console.log(data1)
+      console.log(program)
 
       var pythonCode = program.CodePython
 
