@@ -161,8 +161,8 @@ export default {
             uid:uid,
             df:df,
             pythonCode:pythonCode,
-            nodesLength : nl ,
-            firstNode : fn ,
+            nl : nl ,
+            fn : fn ,
           });
         });
 
