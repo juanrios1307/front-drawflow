@@ -16,9 +16,9 @@
                 <div class="card-body">
                   <div class="row">
                     <div class="col">
-                      <p class="card-title">Nodos :{{ Object.values(n.drawflow.Home.data).length }}</p>
+                      <p class="card-title">Nodos :{{n.drawflow? Object.values(n.drawflow.Home.data).length :0}}</p>
                       <p class="card-text">
-                        Nodo 1 : {{ n.drawflow.Home.data['1'].name }}
+                        Nodo 1 : {{n.drawflow?  n.drawflow.Home.data['1'].name :""}}
                       </p>
                     </div>
                     <div class="col">
@@ -149,22 +149,45 @@ export default {
      
     },
 
-    open(event) {
+    async open(event) {
       
       console.log(event.target.__vnode.key)
 
       const key = event.target.__vnode.key
 
-      const program = this.listPrograms.find((line) => line.uid == key);
-
-      const data = JSON.parse(program.Code);
+      const data = {Uid : key}
       console.log(data)
+       var config = {
+        method: 'get',
+        url: 'http://localhost:9000/'+key,
+       headers: { 
+          'Content-Type': 'application/json'
+        },
+        data : data
+      };
 
-      /*drawflowStore.$patch((state) => {
-              state.code = program.code;
-            });*/
+      const response = await axios(config)
+      const program = response.data.node[0]
+      console.log(program)
 
-      this.df.import(data);
+      //const program = this.listPrograms.find((line) => line.uid == key);
+
+      const data1 = JSON.parse(program.Code);
+      console.log(data1)
+
+      var pythonCode = program.CodePython
+
+      for(var i =0; i<pythonCode.length; i++){
+        pythonCode[i]={code:pythonCode[i]}
+      }
+
+      this.drawflowStore.$patch((state) => {
+              state.code = pythonCode;
+            });
+
+      
+      this.df.import(data1);
+      this.df.editor_mode = 'fixed'
     },
   },
 };
