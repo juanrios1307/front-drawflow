@@ -52,7 +52,11 @@
         Guardar Programa
       </button>
 
-      <button type="button" class="btn btn-success btn-lg btn-block">
+      <button 
+        type="button" 
+        class="btn btn-success btn-lg btn-block" 
+        @click="execute"
+      > 
         Ejecutar Programa
       </button>
     </div>
@@ -63,7 +67,7 @@
 import { getCurrentInstance } from "vue";
 import { useDrawflowStore } from "../stores/drawflow";
 import axios from "axios";
-import { nullLiteral } from "@babel/types";
+import { saveAs } from 'file-saver';
 
 export default {
   name: "operations",
@@ -214,6 +218,29 @@ export default {
       this.df.import(data1);
       this.df.editor_mode = 'fixed'
     },
+    
+    async execute (event){
+      var code = JSON.parse ( JSON.stringify ( this.drawflowStore.getCode) )
+
+      for(var i = 0; i<code.length; i++){
+        code[i]="".concat(...code[i].code)
+        code[i]=code[i].concat("\n")
+      }
+
+      var file = new File(code, "script.py", {type: "text/plain;charset=utf-8"});
+      saveAs(file);
+
+      var config = {
+        method: 'get',
+        url: 'http://localhost:9000/exec',
+        headers: { }
+      };
+
+      const response = await axios(config)
+      const data = response
+      console.log(data)
+    }
+    
   },
 };
 </script>

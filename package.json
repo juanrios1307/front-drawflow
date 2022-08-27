@@ -13,6 +13,7 @@
     "bootstrap-vue": "^2.22.0",
     "dotenv": "^16.0.1",
     "drawflow": "^0.0.59",
+    "file-saver": "^2.0.5",
     "pinia": "^2.0.17",
     "vue": "^3.2.37",
     "vue-router": "^4.1.3",
