@@ -6,13 +6,27 @@
         v-for="n in drawflowStore.code"
         :key="n.id"
       >
-        <div class="a">
+        <div>
           <code style="color: #17202a">
             <pre>{{ "".concat(...n.code) }}</pre>
           </code>
         </div>
       </li>
     </ul>
+    <div class="results">
+      <code class="out titleOut">RESULTS: </code>
+      <ul class="list-group list-group-flush">
+        <li
+          class="list-group-item itemCode itemOut"
+          v-for="n in drawflowStore.outCode"
+          :key="n"
+        >
+          <div>
+            <code class="out"> {{n}}</code>
+          </div>
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
@@ -45,4 +59,22 @@ export default {
   height: 45px;
   padding: 5px;
 }
+
+.results{
+  margin-top: 25px;
+
+}
+
+.itemOut{
+  background-color: #CDCDCD;
+}
+
+.out{
+  font-weight: bolder;
+}
+
+.titleOut{
+  text-align: center;
+}
+
 </style>

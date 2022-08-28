@@ -220,6 +220,9 @@ export default {
     },
     
     async execute (event){
+
+      const vm = this
+
       var code = JSON.parse ( JSON.stringify ( this.drawflowStore.getCode) )
 
       for(var i = 0; i<code.length; i++){
@@ -228,17 +231,34 @@ export default {
       }
 
       var file = new File(code, "script.py", {type: "text/plain;charset=utf-8"});
-      saveAs(file);
+      saveAs(file)
 
-      var config = {
-        method: 'get',
-        url: 'http://localhost:9000/exec',
-        headers: { }
-      };
+      setTimeout(async ()=>{
+        var config = {
+          method: 'get',
+          url: 'http://localhost:9000/exec',
+          headers: { }
+        };
 
-      const response = await axios(config)
-      const data = response
-      console.log(data)
+        const response = await axios(config)
+        const data = response.data
+
+        var dataN = data.split(/\r?\n/);
+
+        if(dataN.length>1){
+          dataN.shift()
+        }
+
+        vm.drawflowStore.$patch((state) => {
+          state.outCode=dataN
+        });
+
+
+      },10000)
+      
+      
+
+    
     }
     
   },
