@@ -1,18 +1,20 @@
 <template>
   <div class="col python" id="drag">
-    <ul class="list-group list-group-flush">
-      <li
-        class="list-group-item itemCode"
-        v-for="n in drawflowStore.code"
-        :key="n.id"
-      >
-        <div>
-          <code style="color: #17202a">
-            <pre>{{ "".concat(...n.code) }}</pre>
-          </code>
-        </div>
-      </li>
-    </ul>
+    <div class="containerCode">
+      <ul class="list-group list-group-flush codeItem">
+        <li
+          class="list-group-item itemCode codeItem"
+          v-for="n in drawflowStore.code"
+          :key="n.id"
+        >
+          <div class="codeItem">
+            <code class="codeItem" style="color: #17202a">
+              <pre class="codeItem">{{ "".concat(...n.code) }}</pre>
+            </code>
+          </div>
+        </li>
+      </ul>
+    </div>
     <div class="results">
       <code class="out titleOut">RESULTS: </code>
       <ul class="list-group list-group-flush">
@@ -22,7 +24,7 @@
           :key="n"
         >
           <div>
-            <code class="out"> {{n}}</code>
+            <code class="out"> {{ n }}</code>
           </div>
         </li>
       </ul>
@@ -60,21 +62,34 @@ export default {
   padding: 5px;
 }
 
-.results{
+.results {
   margin-top: 25px;
-
 }
 
-.itemOut{
-  background-color: #CDCDCD;
+.itemOut {
+  background-color: #cdcdcd;
 }
 
-.out{
+.out {
   font-weight: bolder;
 }
 
-.titleOut{
+.titleOut {
   text-align: center;
 }
 
+li {
+  background-color: black;
+}
+
+.containerCode {
+  background-color: aqua;
+  border-radius: 100%;
+}
+
+.codeItem {
+  background-color: black;
+  color: rgba(63, 160, 84, 1);
+  font-weight: bolder;
+}
 </style>

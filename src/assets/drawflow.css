@@ -16,9 +16,9 @@
   --dfNodePaddingBottom: 15px;
   --dfNodeBoxShadowHL: 0px;
   --dfNodeBoxShadowVL: 2px;
-  --dfNodeBoxShadowBR: 15px;
+  --dfNodeBoxShadowBR: 2px;
   --dfNodeBoxShadowS: 2px;
-  --dfNodeBoxShadowColor: #000000;
+  --dfNodeBoxShadowColor:  rgba(194, 193, 193, 1);
 
   --dfNodeHoverBackgroundColor: rgba(63, 160, 84, 1) !important;
   --dfNodeHoverTextColor: #000000;
@@ -28,9 +28,9 @@
 
   --dfNodeHoverBoxShadowHL: 0px;
   --dfNodeHoverBoxShadowVL: 2px;
-  --dfNodeHoverBoxShadowBR: 15px;
+  --dfNodeHoverBoxShadowBR: 2px;
   --dfNodeHoverBoxShadowS: 2px;
-  --dfNodeHoverBoxShadowColor: #4ea9ff;
+  --dfNodeHoverBoxShadowColor:  rgba(194, 193, 193, 1);
 
   --dfNodeSelectedBackgroundColor: rgba(56, 201, 68, 1) !important;
   --dfNodeSelectedTextColor: #ffffff;
@@ -40,9 +40,9 @@
 
   --dfNodeSelectedBoxShadowHL: 0px;
   --dfNodeSelectedBoxShadowVL: 2px;
-  --dfNodeSelectedBoxShadowBR: 15px;
+  --dfNodeSelectedBoxShadowBR: 2px;
   --dfNodeSelectedBoxShadowS: 2px;
-  --dfNodeSelectedBoxShadowColor: #4ea9ff;
+  --dfNodeSelectedBoxShadowColor:  rgba(194, 193, 193, 1);
 
   --dfInputBackgroundColor: rgba(174, 239, 23, 1) !important;
   --dfInputBorderSize: 2px;
