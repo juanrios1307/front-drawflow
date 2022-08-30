@@ -102,7 +102,7 @@ export default {
       var code = JSON.parse ( JSON.stringify ( this.drawflowStore.getCode) )
 
       for(var i = 0; i<code.length; i++){
-        code[i]=String(i).concat(...code[i].code)
+        code[i]=String(i).concat("#").concat(...code[i].code)
       }
 
 
@@ -191,10 +191,12 @@ export default {
       var id =[]
 
       for(var i =0; i<pythonCode.length; i++){
-        id[i] = pythonCode[i].substring(0,1)
+        
+        var idx = pythonCode[i].indexOf("#")
+
         pythonCode[i]={
-          id: pythonCode[i].substring(0,1),
-          code:pythonCode[i].substring(1,pythonCode[i].length)
+          id: parseInt(pythonCode[i].substring(0,idx)),
+          code:pythonCode[i].substring(idx+1,pythonCode[i].length)
           }
       }
 
