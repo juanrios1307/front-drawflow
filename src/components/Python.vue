@@ -3,28 +3,28 @@
     <div class="containerCode">
       <ul class="list-group list-group-flush codeItem">
         <li
-          class="list-group-item itemCode codeItem"
+          class="list-group-item itemCode li"
           v-for="n in drawflowStore.code"
           :key="n.id"
         >
-          <div class="codeItem">
-            <code class="codeItem" style="color: #17202a">
-              <pre class="codeItem">{{ "".concat(...n.code) }}</pre>
+          <div class="itemCode">
+            <code class="itemCode" style="color: #01FF4E">
+              <pre class="itemCode">{{ "".concat(...n.code) }}</pre>
             </code>
           </div>
         </li>
       </ul>
     </div>
-    <div class="results">
-      <code class="out titleOut">RESULTS: </code>
-      <ul class="list-group list-group-flush">
+    <div class="results itemCode containerCode">
+      <code class="itemCode">RESULTS: </code>
+      <ul class="list-group list-group-flush codeItem">
         <li
-          class="list-group-item itemCode itemOut"
+          class="list-group-item itemCode li"
           v-for="n in drawflowStore.outCode"
           :key="n"
         >
           <div>
-            <code class="out"> {{ n }}</code>
+            <code class="itemCode"> {{ n }}</code>
           </div>
         </li>
       </ul>
@@ -58,38 +58,26 @@ export default {
 }
 
 .itemCode {
-  height: 45px;
-  padding: 5px;
+  background-color: black;
+  color: rgba(63, 160, 84, 1);
+  
 }
 
 .results {
   margin-top: 25px;
 }
 
-.itemOut {
-  background-color: #cdcdcd;
+.li {
+  background-color: black;
+  height: 40px;
+  padding: 5px;
+  border-radius: 25px;
 }
 
-.out {
+code{
+  font-size: 20px;
   font-weight: bolder;
 }
 
-.titleOut {
-  text-align: center;
-}
 
-li {
-  background-color: black;
-}
-
-.containerCode {
-  background-color: aqua;
-  border-radius: 100%;
-}
-
-.codeItem {
-  background-color: black;
-  color: rgba(63, 160, 84, 1);
-  font-weight: bolder;
-}
 </style>
