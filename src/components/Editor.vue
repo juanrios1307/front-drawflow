@@ -140,13 +140,18 @@ export default {
     };
   },
   setup() {
+    //Se declara variable reactiva df, y se agrega en propiedades globales
     const df = shallowRef({});
     const internalInstance = getCurrentInstance();
     internalInstance.appContext.app._context.config.globalProperties.$df = df;
+
+    //Se crea instancia de Vue
     const Vue = { version: 3, h, render };
 
+    //Se hace instancia a la store pinia
     const drawflowStore = useDrawflowStore();
 
+    //Funcion para hacer drag del nodo
     const drag = (event, eventType) => {
       event.dataTransfer.setData(
         "node",
@@ -154,20 +159,22 @@ export default {
       );
     };
 
+    //Función para dejar nodo en editor
     const drop = (event) => {
       event.preventDefault();
       const data = event.dataTransfer.getData("node");
-      
-      if(df.value.editor_mode == "edit"){
-          addNodeToDrawFlow(data, event.clientX, event.clientY);
+
+      if (df.value.editor_mode == "edit") {
+        addNodeToDrawFlow(data, event.clientX, event.clientY);
       }
-      
     };
 
+    //Al permitir el soltar previene refresh de la pagina
     const allowDrop = (event) => {
       event.preventDefault();
     };
 
+    //Función para crear nodo con teclado
     const keyPress = (event) => {
       console.log(event.key);
 
@@ -202,14 +209,15 @@ export default {
           name = "Imprimir";
           break;
       }
-      
-      if(df.value.editor_mode == "edit"){
-          addNodeToDrawFlow(name, event.clientX, event.clientY);
+
+      if (df.value.editor_mode == "edit") {
+        addNodeToDrawFlow(name, event.clientX, event.clientY);
       }
-    
     };
 
+    //Función para agregar nodo al drawflow
     const addNodeToDrawFlow = (name, pos_x, pos_y) => {
+      //Se crean posiciones basado en la posicion del mouse, zoom y tamaños
       pos_x =
         pos_x *
           (df.value.precanvas.clientWidth /
@@ -225,6 +233,7 @@ export default {
           (df.value.precanvas.clientHeight /
             (df.value.precanvas.clientHeight * df.value.zoom));
 
+      //Se crea nodo basado en el nombre
       switch (name) {
         case "Numero":
           df.value.addNode(
@@ -348,19 +357,25 @@ export default {
       }
     };
 
+    //Función al montar componente
     onMounted(() => {
+      //Se obtiene el div para el editor
       var id = document.getElementById("drawflow");
 
+      //se crea el nuevo drawflow
       df.value = new Drawflow(
         id,
         Vue,
         internalInstance.appContext.app._context
       );
 
+      //Se hace modo edición
       df.value.editor_mode = "edit"; // Default
 
+      //Se inicia
       df.value.start();
 
+      //Se registran todos los nodos y su componente
       df.value.registerNode("Numero", Numero, {}, {});
       df.value.registerNode("Suma", Suma, {}, {});
       df.value.registerNode("Resta", Resta, {}, {});
@@ -371,16 +386,19 @@ export default {
       df.value.registerNode("Asignar", Asignar, {}, {});
       df.value.registerNode("Imprimir", Imprimir, {}, {});
 
+      //Se permite hacer reroute
       df.reroute = true;
 
-      //Events
-      // Events!
+      //Events!!
+
+      //Al crear nodo
       df.value.on("nodeCreated", function (id) {
         console.log("Node created " + id);
+        //se obtiene el nodo creado
         const node = df.value.getNodeFromId(id);
 
         var code = [];
-
+        //Se crea codigo del nodo
         if (node.name == "Numero") {
           code = [node.name + "_" + id, " = ", node.data.number];
         } else if (
@@ -416,6 +434,7 @@ export default {
           code = ["print(", 0, ")"];
         }
 
+        //Se agrega el nodo a la store
         drawflowStore.$patch((state) => {
           state.nodes.push({
             id: id,
@@ -424,6 +443,7 @@ export default {
           });
         });
 
+        //Se agrega el codigo a la store
         drawflowStore.$patch((state) => {
           state.code.push({
             id: id,
@@ -433,9 +453,11 @@ export default {
         });
       });
 
+      //Al eliminar un nodo
       df.value.on("nodeRemoved", function (id) {
         console.log("Node removed " + id);
 
+        //Se elimina el nodo y el codigo de la store
         const nodeIndex = drawflowStore.nodes.findIndex((n) => n.id == id);
         const codeIndex = drawflowStore.code.findIndex((n) => n.id == id);
 
@@ -448,8 +470,11 @@ export default {
         });
       });
 
+      //Al cambiar data del nodo
       df.value.on("nodeDataChanged", function (id) {
         console.log("Node data changed " + id);
+
+        //Se obtiene el nodo y se elimina de la store
         const node = df.value.getNodeFromId(id);
         const data = node.data;
 
@@ -467,6 +492,7 @@ export default {
         });*/
       });
 
+      //Al seleccionar un nodo se imprime el nodo, y el estado nodos y codigo
       df.value.on("nodeSelected", function (id) {
         console.log("Node selected " + id);
         console.log(df.value.getNodeFromId(id));
@@ -482,10 +508,14 @@ export default {
         console.log("Module Changed " + name);
       });
 
+      //Al crear conexión
+      //Aqui ocurre la magia!!
       df.value.on("connectionCreated", function (connection) {
+        //Se imprime la conexión creada
         console.log("Connection created");
         console.log(connection);
 
+        //Se obtiene la input y la output
         const input = df.value.getNodeFromId(connection.input_id);
         const output = df.value.getNodeFromId(connection.output_id);
 
@@ -496,6 +526,10 @@ export default {
 
         //Codigo para realizar operaciones de los nodos
         const input_class = connection.input_class;
+
+        //Si ya existe una input en esa entrada, se elimina la conexión
+        //Reglas: IF no se puede conectar a otro if, ni a un imprimir o un asignar
+        //Reglas: FOR no se puede conectar a otro for, ni a un asignar, o un if o un imprimir
         if (
           (input_class == "input_1" &&
             input.inputs.input_1.connections.length > 1) ||
@@ -518,16 +552,21 @@ export default {
             connection.input_class
           );
         } else {
+          //Se agrega variable data, variable a actualizar
           var data = {};
           if (output.name == "If" && input.name == "For") {
+            //Si entra un if a un for
+
             const n1 = output.data.n1;
             const n2 = output.data.n2;
 
+            //Se elimina un input del for
             df.value.removeNodeInput(
               input.id,
               input_class == "input_1" ? "input_2" : "input_1"
             );
 
+            //Se obtiene index del codigo de la store
             const codeIndexOutputNode = drawflowStore.code.findIndex(
               (n) => n.id == output.id
             );
@@ -536,34 +575,42 @@ export default {
               (n) => n.id == input.id
             );
 
+            //Se obtiene codigo de la store
             const codeInputOp = drawflowStore.getLineCodeById(input.id);
 
             const codeOp = drawflowStore.code;
 
+            //Se agrega el codigo de input abajo del output
             codeOp.splice(codeIndexOutputNode + 1, 0, codeInputOp);
 
+            //Se elimina repeticion restante
             if (codeIndexInputNode > codeIndexOutputNode) {
               codeOp.splice(codeIndexInputNode + 1, 1);
             } else {
               codeOp.splice(codeIndexInputNode, 1);
             }
 
+            //Se actualiza codigo
             drawflowStore.$patch((state) => {
               state.code = codeOp;
             });
 
+            //Se agrega un tabulador al for
             var vars = drawflowStore.getLineCodeById(output.id).aux;
             const TAB = "\t";
             codeInput[0] = TAB + codeInput[0];
 
             aux = vars;
 
+            //Se actualiza la data
             data = {
               n1: parseInt(n1),
               n2: parseInt(n2),
               repeat: input.data.repeat,
             };
 
+            //Se hace un for para actualizar el codigo de las conexiones existentes al for
+            //para actualizar los datos y agregar un tab extra
             for (
               var i = 0;
               i < input.outputs.output_1.connections.length;
@@ -600,14 +647,17 @@ export default {
               input.name == "Multiplicacion" ||
               input.name == "Division")
           ) {
+            //Si la entrada es de un IF y va a una Operacion
             const n1 = output.data.n1;
             const n2 = output.data.n2;
 
+            //Se elimina un node de conexión
             df.value.removeNodeInput(
               input.id,
               input_class == "input_1" ? "input_2" : "input_1"
             );
 
+            //Se actualiza el codigo de la operación
             const codeIndexOutputNode = drawflowStore.code.findIndex(
               (n) => n.id == output.id
             );
@@ -620,18 +670,22 @@ export default {
 
             const codeOp = drawflowStore.code;
 
+            //Se agrega el codigo bajo el if
             codeOp.splice(codeIndexOutputNode + 1, 0, codeInputOp);
 
+            //Se elimina el codigo sobrante
             if (codeIndexInputNode > codeIndexOutputNode) {
               codeOp.splice(codeIndexInputNode + 1, 1);
             } else {
               codeOp.splice(codeIndexInputNode, 1);
             }
 
+            //Se actualiza en la store
             drawflowStore.$patch((state) => {
               state.code = codeOp;
             });
 
+            //Si el if es cierto hace la operación
             if (output.data.isTrue) {
               console.log("true");
               const result =
@@ -651,6 +705,7 @@ export default {
                 result: result,
               };
             } else {
+              //En caso de ser falso no actualiza la data
               data = {
                 n1: input.data.n1,
                 n2: input.data.n2,
@@ -658,6 +713,7 @@ export default {
               };
             }
 
+            //Se obtiene el codigo del if y se actualiza el del input
             var vars = drawflowStore.getLineCodeById(output.id).aux;
 
             const TAB = "\t";
@@ -672,16 +728,20 @@ export default {
               input.name == "Multiplicacion" ||
               input.name == "Division")
           ) {
+            //Si va de un for a una operacion
+
             const n1 = output.data.n1;
             const n2 = output.data.n2;
             var n2Alt = 0;
             var result = 0;
 
+            //Se elimina una input de la operacion
             df.value.removeNodeInput(
               input.id,
               input_class == "input_1" ? "input_2" : "input_1"
             );
 
+            //Se actualiza el codigo de posición
             const codeIndexOutputNode = drawflowStore.code.findIndex(
               (n) => n.id == output.id
             );
@@ -694,18 +754,22 @@ export default {
 
             const codeOp = drawflowStore.code;
 
+            //Se agrega el input abajo del for
             codeOp.splice(codeIndexOutputNode + 1, 0, codeInputOp);
 
+            //Se elimina el restante
             if (codeIndexInputNode > codeIndexOutputNode) {
               codeOp.splice(codeIndexInputNode + 1, 1);
             } else {
               codeOp.splice(codeIndexInputNode, 1);
             }
 
+            //Se actualiza la store
             drawflowStore.$patch((state) => {
               state.code = codeOp;
             });
 
+            //Se hace la repetición
             for (var i = 0; i < output.data.repeat; i++) {
               if (input.name == "Suma") {
                 if (i == 0) {
@@ -742,6 +806,7 @@ export default {
               }
             }
 
+            //Se actualiza el codigo del input
             var vars = drawflowStore.getLineCodeById(output.id).aux;
             const TAB = "\t";
 
@@ -755,6 +820,7 @@ export default {
               result: result,
             };
 
+            //En caso de que el for tenga entradas y una sea un if, agrega otro tab
             var inputsOfOutput =
               output.inputs.input_1.connections.length > 0
                 ? output.inputs.input_1.connections
@@ -774,9 +840,11 @@ export default {
             input.name == "Multiplicacion" ||
             input.name == "Division"
           ) {
+            //Si la entrada es una operación
             var n1 = 0;
             var n2 = 0;
 
+            //Obtiene el codigo
             const codeIndexInputNode = drawflowStore.code.findIndex(
               (n) => n.id == input.id
             );
@@ -785,6 +853,8 @@ export default {
               (n) => n.id == output.id
             );
 
+            //Si el codigo de entrada esta mas arriba que la salida
+            //Cambia las posiciones
             if (codeIndexInputNode < codeIndexOutputNode) {
               const codeOp = drawflowStore.code;
 
@@ -796,27 +866,34 @@ export default {
               });
             }
 
+            //Si la entrada es a input 1
             if (input_class == "input_1") {
+              //Cambia N1
               n1 =
                 output.name == "Numero" || output.name == "Asignar"
                   ? output.data.number
                   : output.data.result;
               n2 = input.data.n2;
 
+              //Cambia codigo
               codeInput[2] = output.name + "_" + output.id;
             } else {
               n1 = input.data.n1;
+
+              //Cambia N2
               n2 =
                 output.name == "Numero" || output.name == "Asignar"
                   ? output.data.number
                   : output.data.result;
 
+              //Cambia Codigo
               codeInput[4] = output.name + "_" + output.id;
             }
 
             n1 = parseInt(n1);
             n2 = parseInt(n2);
 
+            //Realiza operacion
             const result =
               input.name == "Suma"
                 ? n1 + n2
@@ -834,10 +911,15 @@ export default {
               result: result,
             };
           } else if (input.name == "If") {
+            //Si la entrada es a un if
+
             var n1 = 0;
             var n2 = 0;
+
+            //Obtiene el auxiliar del estado code
             var vars = drawflowStore.getLineCodeById(input.id).aux;
 
+            //Obtiene index del codigo
             const codeIndexInputNode = drawflowStore.code.findIndex(
               (n) => n.id == input.id
             );
@@ -846,6 +928,7 @@ export default {
               (n) => n.id == output.id
             );
 
+            //Si el if esta mas alto que el output, hace el input abajo del output
             if (codeIndexInputNode < codeIndexOutputNode) {
               const codeOp = drawflowStore.code;
 
@@ -857,27 +940,36 @@ export default {
               });
             }
 
+            //Si la entrada es por la clase 1
             if (input_class == "input_1") {
+              //Cambia N1
               n1 =
                 output.name == "Numero" || output.name == "Asignar"
                   ? output.data.number
                   : output.data.result;
               n2 = input.data.n2;
 
+              //Cambia variables auxiliares
               aux = {
                 v1: output.name + "_" + output.id,
                 v2: vars.v2,
               };
 
+              //Cambia codigo
               codeInput[1] = output.name + "_" + output.id;
             } else {
               n1 = input.data.n1;
+
+              //Cambia N2
               n2 =
                 output.name == "Numero" || output.name == "Asignar"
                   ? output.data.number
                   : output.data.result;
+
+              //Cambia codigo
               codeInput[3] = output.name + "_" + output.id;
 
+              //Cambia Variables
               aux = {
                 v1: vars.v1,
                 v2: output.name + "_" + output.id,
@@ -887,6 +979,7 @@ export default {
             n1 = parseInt(n1);
             n2 = parseInt(n2);
 
+            //Determina condición
             const isTrue =
               input.data.condition == "mayor" && n1 > n2
                 ? true
@@ -896,6 +989,7 @@ export default {
                 ? true
                 : false;
 
+            //Organiza data
             data = {
               n1: parseInt(n1),
               n2: parseInt(n2),
@@ -903,6 +997,8 @@ export default {
               isTrue: isTrue,
             };
 
+            //Actualiza todas las outputs del input
+            //Actualiza el codigo de lo que se conecta al if
             for (
               var i = 0;
               i < input.outputs.output_1.connections.length;
@@ -974,12 +1070,17 @@ export default {
               }
             }
           } else if (input.name == "For") {
+            //Si la input es for
+
             var n1 = 0;
             var n2 = 0;
             var var1 = 0;
             var var2 = 0;
+
+            //Obtiene variables auxiliares del for
             var vars = drawflowStore.getLineCodeById(input.id).aux;
 
+            //Obtiene index del codigo
             const codeIndexInputNode = drawflowStore.code.findIndex(
               (n) => n.id == input.id
             );
@@ -988,6 +1089,7 @@ export default {
               (n) => n.id == output.id
             );
 
+            //Si la input esta mas arriba, hace que baje
             if (codeIndexInputNode < codeIndexOutputNode) {
               const codeOp = drawflowStore.code;
 
@@ -999,26 +1101,33 @@ export default {
               });
             }
 
+            //Si entro por clase 1
             if (input_class == "input_1") {
+              //Cambia N1
               n1 =
                 output.name == "Numero" || output.name == "Asignar"
                   ? output.data.number
                   : output.data.result;
               n2 = input.data.n2;
 
+              //Cambia Variables auxiliares v1
               var1 = output.name + "_" + output.id;
               var2 = vars.v2;
             } else {
               n1 = input.data.n1;
+
+              //Cambia N2
               n2 =
                 output.name == "Numero" || output.name == "Asignar"
                   ? output.data.number
                   : output.data.result;
 
+              //Cambia v2 auxiliar
               var1 = vars.v1;
               var2 = output.name + "_" + output.id;
             }
 
+            //Prepara variables auxiliares y data
             aux = {
               v1: var1,
               v2: var2,
@@ -1030,6 +1139,8 @@ export default {
               repeat: input.data.repeat,
             };
 
+            //Actualiza todas las outputs del input
+            //Actualiza el codigo de lo que se conecta al For
             for (
               var i = 0;
               i < input.outputs.output_1.connections.length;
@@ -1059,6 +1170,9 @@ export default {
               }
             }
           } else if (input.name == "Asignar") {
+            //Si el nodo es de asignación
+
+            //Busca los index del codigo
             const codeIndexInputNode = drawflowStore.code.findIndex(
               (n) => n.id == input.id
             );
@@ -1067,6 +1181,7 @@ export default {
               (n) => n.id == output.id
             );
 
+            //Hace el input mas bajo que el output
             if (codeIndexInputNode < codeIndexOutputNode) {
               const codeOp = drawflowStore.code;
 
@@ -1078,6 +1193,7 @@ export default {
               });
             }
 
+            //Cambia la data
             data = {
               number: parseInt(
                 output.name == "Numero" || output.name == "Asignar"
@@ -1086,8 +1202,12 @@ export default {
               ),
             };
 
+            //Cambia el codigo
             codeInput[2] = output.name + "_" + output.id;
           } else if (input.name == "Imprimir") {
+            //Si el input es imprimir
+
+            //Busca el index del codigo
             const codeIndexInputNode = drawflowStore.code.findIndex(
               (n) => n.id == input.id
             );
@@ -1096,6 +1216,8 @@ export default {
               (n) => n.id == output.id
             );
 
+            //Si el input es mas alto que el output
+            //Hace el input mas bajo
             if (codeIndexInputNode < codeIndexOutputNode) {
               const codeOp = drawflowStore.code;
 
@@ -1107,26 +1229,34 @@ export default {
               });
             }
 
+            //Prepara data a guardar
             data = {
               var: output.name + "_" + output.id,
             };
 
+            //Cambia Codigo
             codeInput[1] = output.name + "_" + output.id;
           }
 
+          //Actualiza data del nodo input
           df.value.updateNodeDataFromId(input.id, data);
 
+          //Busca el index del input en store
           const nodeIndex = drawflowStore.nodes.findIndex(
             (n) => n.id == input.id
           );
+
+          //Actualiza la data del nodo en store
           drawflowStore.$patch((state) => {
             state.nodes[nodeIndex].data = data;
           });
 
+          //Busca index del codigo en la store
           const codeIndexNode = drawflowStore.code.findIndex(
             (n) => n.id == input.id
           );
 
+          //Actualiza codigo y variables auxiliares
           drawflowStore.$patch((state) => {
             state.code[codeIndexNode].code = codeInput;
           });
@@ -1136,17 +1266,21 @@ export default {
         }
       });
 
+      //Al remover conexion
       df.value.on("connectionRemoved", function (connection) {
         console.log("Connection removed");
         console.log(connection);
 
+        //Se obtiene input y output
         const input = df.value.getNodeFromId(connection.input_id);
         const output = df.value.getNodeFromId(connection.output_id);
 
+        //Se obtiene la input especifica
         const input_class = connection.input_class;
 
         var data = {};
 
+        //Si la output era IF o FOR se agrega un input a la operacion y se cambia la data
         if (
           (output.name == "If" || output.name == "For") &&
           (input.name == "Suma" ||
@@ -1181,6 +1315,7 @@ export default {
           input.name == "Multiplicacion" ||
           input.name == "Division"
         ) {
+          //Si la input era operacion de un numero o asignación, se cambia la data
           var n1 = 0;
           var n2 = 0;
           if (input_class == "input_1") {
@@ -1207,6 +1342,7 @@ export default {
             result: result,
           };
         } else if (input.name == "If") {
+          //Si la input era un if se cambia la data de la input eliminada
           var n1 = input_class == "input_1" ? 0 : parseInt(input.data.n1);
           var n2 = input_class == "input_2" ? 0 : parseInt(input.data.n2);
 
@@ -1226,6 +1362,7 @@ export default {
             isTrue: isTrue,
           };
         } else if (input.name == "For") {
+          //Si la input era un for se cambia la data que fue eliminada
           data = {
             n1: input_class == "input_1" ? 0 : parseInt(input.data.n1),
             n2: input_class == "input_2" ? 0 : parseInt(input.data.n2),
@@ -1237,8 +1374,10 @@ export default {
           };
         }
 
+        //Se actualiza la data del nod
         df.value.updateNodeDataFromId(input.id, data);
 
+        //Se buca y se actualiza el nodo en la store
         const nodeIndex = drawflowStore.nodes.findIndex(
           (n) => n.id == input.id
         );
@@ -1274,6 +1413,7 @@ export default {
       var dataExport = df.value.export();
     });
 
+    //Se retornan metodos y variables pertinentes
     return {
       drawflowStore,
       drag,
@@ -1334,8 +1474,8 @@ h4 {
   cursor: move;
   background-color: beige !important;
 }
-.card:hover{
-  background-color: #E3E3E3;
-  cursor:pointer;
+.card:hover {
+  background-color: #e3e3e3;
+  cursor: pointer;
 }
 </style>
