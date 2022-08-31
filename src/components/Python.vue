@@ -8,7 +8,8 @@
           :key="n.id"
         >
           <div class="itemCode">
-            <code class="itemCode" style="color: #01FF4E">
+            <code class="itemCode" style="color: #01ff4e">
+              <!--Etiqueta para ver codigo con formato y concatenar cada array de codigo-->
               <pre class="itemCode">{{ "".concat(...n.code) }}</pre>
             </code>
           </div>
@@ -60,7 +61,6 @@ export default {
 .itemCode {
   background-color: black;
   color: rgba(63, 160, 84, 1);
-  
 }
 
 .results {
@@ -74,10 +74,8 @@ export default {
   border-radius: 25px;
 }
 
-code{
+code {
   font-size: 20px;
   font-weight: bolder;
 }
-
-
 </style>

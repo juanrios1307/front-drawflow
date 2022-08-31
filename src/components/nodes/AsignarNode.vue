@@ -21,15 +21,20 @@ export default {
     };
   },
   watch: {
+    //Observa si hay cambios en la data
     "node.data": function (newData, oldData) {
       console.log("Changing Data of Assign Node : " + this.id);
       //console.log(this.df.getNodeFromId(this.id));
 
+      //Asigna el nodo
       const assignNode = this.df.getNodeFromId(this.id);
 
+      //Obtiene todas las outputs del nodo
       const outputs = assignNode.outputs.output_1.connections;
 
+      //Para cada nodo de salida
       outputs.forEach((output) => {
+        //Obtiene el nodo de salida de drawflow y actualiza la data
         const outputNode = this.df.getNodeFromId(output.node);
         console.log(outputNode);
         var data = {};
@@ -114,8 +119,10 @@ export default {
           };
         }
 
+        //Actualiza datos de la salida
         this.df.updateNodeDataFromId(outputNode.id, data);
 
+        //Obtiene el nodo de la store y lo guarda
         const nodeIndex = this.drawflowStore.nodes.findIndex(
           (n) => n.id == outputNode.id
         );
@@ -126,10 +133,11 @@ export default {
     },
   },
   mounted() {
+    //Obtención de drawflow instanciado en propiedaes globales
     let df = null;
     df = getCurrentInstance().appContext.config.globalProperties.$df.value;
 
-     this.id = df!=undefined?df.nodeId:"";
+    this.id = df != undefined ? df.nodeId : "";
     this.df = df;
   },
   updated() {

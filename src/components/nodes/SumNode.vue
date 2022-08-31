@@ -21,14 +21,20 @@ export default {
     };
   },
   watch: {
+    //Se observa si hay algun cambio en la data del nodo
+    //se actualiza la data de los nodos que tienen como input este nodo
     "node.data": function (newData, oldData) {
       console.log("Changing Data of Sum Node : " + this.id);
 
+      //Se asigna assignNode a el nodo en cuestion
       const assignNode = this.df.getNodeFromId(this.id);
 
+      //Se obtienen las outputs del nodo
       const outputs = assignNode.outputs.output_1.connections;
 
+      //Para cada nodo se actualzia la info
       outputs.forEach((output) => {
+        //Se obtiene el nodo de salida
         const outputNode = this.df.getNodeFromId(output.node);
         console.log(outputNode);
         var data = {};
@@ -36,6 +42,8 @@ export default {
         var n1 = 0;
         var n2 = 0;
 
+        //Si el nodo entra por la input 1, se hace n1 = resultado de assignNode y n2 se deja igual
+        //Si el nodo entra por la input 2, se hace n2 = resultado de assignNode y n1 se deja igual
         if (
           outputNode.name == "Suma" ||
           outputNode.name == "Resta" ||
@@ -68,6 +76,7 @@ export default {
             result: result,
           };
         } else if (outputNode.name == "If") {
+          //Si es un if, se determina el parametro isTrue basado en el cambio de datos
           var n1 = 0;
           var n2 = 0;
           if (output.output == "input_1") {
@@ -115,8 +124,10 @@ export default {
           };
         }
 
+        //Para cada salida se actualiza con la nueva data
         this.df.updateNodeDataFromId(outputNode.id, data);
 
+        //Se busca el nodo en la store y tambien se actualiza
         const nodeIndex = this.drawflowStore.nodes.findIndex(
           (n) => n.id == outputNode.id
         );
@@ -127,10 +138,11 @@ export default {
     },
   },
   mounted() {
+    //Obtención de drawflow instanciado en propiedaes globales
     let df = null;
     df = getCurrentInstance().appContext.config.globalProperties.$df.value;
 
-     this.id = df!=undefined?df.nodeId:"";
+    this.id = df != undefined ? df.nodeId : "";
     this.df = df;
   },
   updated() {

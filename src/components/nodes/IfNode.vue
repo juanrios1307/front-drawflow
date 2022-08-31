@@ -29,16 +29,22 @@ export default {
     };
   },
   watch: {
+    //Se observa si hay algun cambio en la data del nodo
+    //se actualiza la data de los nodos que tienen como input este nodo
     "node.data": function (newData, oldData) {
       console.log("Changing Data of If Node : " + this.id);
       //console.log(this.df.getNodeFromId(this.id));
 
+      //Se obtiene la data de este nodo
       const assignNode = this.df.getNodeFromId(this.id);
 
+      //Se obtiene la variable true
       const isTrue = assignNode.data.isTrue;
 
+      //Se obtienen las salidas
       const outputs = assignNode.outputs.output_1.connections;
 
+      //Para cada salida se actualiza la data con respecto a la condicion isTrue
       outputs.forEach((output) => {
         const outputNode = this.df.getNodeFromId(output.node);
         console.log(outputNode);
@@ -104,8 +110,10 @@ export default {
           }
         }
 
+        //Se actualiza cada nodo de salida
         this.df.updateNodeDataFromId(outputNode.id, data);
 
+        //Se obtiene index de la store y se actualiza cada nodo
         const nodeIndex = this.drawflowStore.nodes.findIndex(
           (n) => n.id == outputNode.id
         );
@@ -116,9 +124,10 @@ export default {
     },
   },
   mounted() {
+    //Obtención de drawflow instanciado en propiedaes globales
     let df = null;
     df = getCurrentInstance().appContext.config.globalProperties.$df.value;
-     this.id = df!=undefined?df.nodeId:"";
+    this.id = df != undefined ? df.nodeId : "";
     this.df = df;
   },
 
@@ -133,6 +142,7 @@ export default {
     };
   },
   methods: {
+    //Función para cambiar datos de salidas del IF cuando se cambia la condición
     onChange(event) {
       const node = this.df.getNodeFromId(this.id);
       console.log(node);
@@ -149,6 +159,7 @@ export default {
           ? true
           : false;
 
+      //Se cambia codigo del nodo
       var codeNode = this.drawflowStore.getLineCodeById(this.id).code;
 
       console.log(codeNode);
@@ -164,6 +175,7 @@ export default {
 
       console.log(codeNode);
 
+      //Se actualiza storedel codigo
       const codeIndexNode = this.drawflowStore.code.findIndex(
         (n) => n.id == this.id
       );
@@ -178,6 +190,7 @@ export default {
         isTrue: isTrue,
       };
 
+      //Se actualiza nodo en drawflow y en store de nodos
       this.df.updateNodeDataFromId(this.id, data1);
 
       var nodeIndex = this.drawflowStore.nodes.findIndex(
@@ -187,6 +200,9 @@ export default {
         state.nodes[nodeIndex].data = data1;
       });
 
+      //Se obtienen todas las conexiones y se actualiza la data en correspondencia a la condicion
+      //Si es verdadera la condición se actualiza la data de las salidas
+      //Si es falsa se asignan 0 y 1 segun el caso a la data de las salidas
       if (node.outputs.output_1.connections.length > 0) {
         for (var i = 0; i < node.outputs.output_1.connections.length; i++) {
           const connection = node.outputs.output_1.connections[i];
@@ -246,8 +262,11 @@ export default {
               };
             }
           }
+
+          //Se actualiza el nodo output con la nueva data
           this.df.updateNodeDataFromId(inputNode.id, data);
 
+          //Se obtiene el index del nodo y se actualiza en store
           var nodeIndex = this.drawflowStore.nodes.findIndex(
             (n) => n.id == inputNode.id
           );

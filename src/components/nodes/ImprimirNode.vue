@@ -21,10 +21,11 @@ export default {
     };
   },
   mounted() {
+    //Obtención de drawflow instanciado en propiedaes globales
     let df = null;
     df = getCurrentInstance().appContext.config.globalProperties.$df.value;
 
-     this.id = df!=undefined?df.nodeId:"";
+    this.id = df != undefined ? df.nodeId : "";
     this.df = df;
   },
   updated() {
