@@ -56,13 +56,13 @@ export default {
 
           const result =
             outputNode.name == "Suma"
-              ? n1 + n2
+              ? parseInt(n1) + parseInt(n2)
               : outputNode.name == "Resta"
-              ? n1 - n2
+              ? parseInt(n1) - parseInt(n2)
               : outputNode.name == "Multiplicacion"
-              ? n1 * n2
+              ? parseInt(n1) * parseInt(n2)
               : outputNode.name == "Division"
-              ? n1 / n2
+              ? parseInt(n1) / parseInt(n2)
               : 0;
 
           data = {

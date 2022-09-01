@@ -147,7 +147,7 @@ export default {
             };
           } else if (outputNode.name == "Asignar") {
             data = {
-              number: assignNode.data.number,
+              number: node.data.number,
             };
           }
 
